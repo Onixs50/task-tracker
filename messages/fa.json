@@ -1,0 +1,162 @@
+{
+  "app": { "name": "دفتر روزانه" },
+  "nav": {
+    "dashboard": "امروز",
+    "admin": "مدیریت",
+    "stats": "آمار",
+    "airdrops": "ایردراپ‌ها",
+    "settings": "تنظیمات",
+    "signOut": "خروج"
+  },
+  "auth": {
+    "tagline": "کارهای روزانه همه پروژه‌هات رو از یک دفتر مدیریت کن.",
+    "signIn": "ورود",
+    "signUp": "ثبت‌نام",
+    "email": "ایمیل",
+    "password": "رمز عبور",
+    "username": "نام کاربری",
+    "usernameHint": "مسکاتت با همین اسم صدات می‌زنه",
+    "google": "ورود با گوگل",
+    "or": "یا",
+    "submitSignIn": "ورود",
+    "submitSignUp": "ساخت حساب",
+    "switchToSignUp": "تازه‌واردی؟ حساب بساز",
+    "switchToSignIn": "حساب داری؟ وارد شو",
+    "mascotSignup": "ثبت‌نام کن تا دفترتو با هم بسازیم!",
+    "error": {
+      "generic": "یه مشکلی پیش اومد. اطلاعات رو چک کن و دوباره امتحان کن.",
+      "usernameTaken": "این نام کاربری قبلاً گرفته شده."
+    }
+  },
+  "onboarding": {
+    "title": "یه چیز دیگه مونده",
+    "prompt": "چی صدات کنیم؟",
+    "placeholder": "یه نام کاربری انتخاب کن",
+    "save": "ذخیره و ادامه"
+  },
+  "dashboard": {
+    "title": "تخته امروز",
+    "welcome": "خوش اومدی، {name}!",
+    "welcomeFirst": "خوشحالیم اومدی، {name}!",
+    "empty": "برای امروز کاری ثبت نشده. از بخش مدیریت تسک اضافه کن.",
+    "allDone": "همه کارهای امروز انجام شد.",
+    "streak": "روز پیاپی",
+    "remaining": "باقی‌مونده امروز",
+    "markDone": "انجام شد",
+    "undo": "بازگردانی",
+    "doneToday": "امروز انجام شد",
+    "doneAt": "ساعت {time} انجام شد"
+  },
+  "clock": {
+    "analog": "آنالوگ",
+    "digital": "دیجیتال"
+  },
+  "priority": { "low": "کم", "medium": "متوسط", "high": "زیاد" },
+  "category": {
+    "transaction": "تراکنش آنچین",
+    "liquidity_check": "چک لیکوییدیتی",
+    "daily_checkin": "دیلی چک‌این",
+    "discord": "چت دیسکورد",
+    "tweet": "توییت زدن",
+    "content": "ساخت محتوا (عکس/فیلم)",
+    "custom": "سفارشی"
+  },
+  "recurrence": {
+    "daily": "هر روز",
+    "weekly": "هفتگی",
+    "custom_dates": "تاریخ‌های خاص",
+    "once": "یک‌بار"
+  },
+  "days": {
+    "0": "یک", "1": "دو", "2": "سه", "3": "چهار", "4": "پنج", "5": "جمعه", "6": "شنبه"
+  },
+  "admin": {
+    "title": "مدیریت دفتر",
+    "projects": "پروژه‌ها",
+    "newProject": "پروژه جدید",
+    "projectName": "نام پروژه",
+    "tasks": "تسک‌ها",
+    "newTask": "تسک جدید",
+    "editTask": "ویرایش تسک",
+    "taskTitle": "عنوان تسک",
+    "taskDescription": "توضیحات (اختیاری)",
+    "category": "دسته",
+    "emoji": "آیکون",
+    "recurrenceType": "تکرار",
+    "startDate": "تاریخ شروع",
+    "endDate": "تاریخ پایان (اختیاری)",
+    "customDates": "انتخاب تاریخ‌ها",
+    "weekDays": "انتخاب روزهای هفته",
+    "priority": "اولویت",
+    "save": "ذخیره",
+    "cancel": "انصراف",
+    "delete": "حذف",
+    "edit": "ویرایش",
+    "duplicate": "کپی",
+    "archive": "آرشیو",
+    "unarchive": "بازگردانی",
+    "search": "جستجوی تسک…",
+    "filterAll": "همه",
+    "showArchived": "نمایش آرشیو‌شده‌ها",
+    "noProjects": "هنوز پروژه‌ای نساختی — اول یک پروژه بساز تا بتونی تسک اضافه کنی.",
+    "noTasks": "تسکی با این فیلتر پیدا نشد.",
+    "confirmDelete": "حذف بشه؟ قابل بازگشت نیست.",
+    "color": "رنگ"
+  },
+  "airdrops": {
+    "title": "ایردراپ‌ها",
+    "add": "ثبت ایردراپ",
+    "projectName": "نام پروژه",
+    "claimDate": "تاریخ",
+    "value": "ارزش / مقدار (اختیاری)",
+    "notes": "یادداشت (اختیاری)",
+    "status": "وضعیت",
+    "statusClaimed": "دریافت‌شده",
+    "statusPending": "در انتظار",
+    "statusMissed": "ازدست‌رفته",
+    "empty": "هنوز ایردراپی ثبت نکردی.",
+    "save": "ذخیره",
+    "delete": "حذف"
+  },
+  "stats": {
+    "title": "عملکرد",
+    "range3d": "۳ روز",
+    "rangeWeek": "هفته",
+    "rangeMonth": "ماه",
+    "rangeYear": "سال",
+    "done": "انجام‌شده",
+    "missed": "میس‌شده",
+    "completionRate": "درصد انجام",
+    "byProject": "بر اساس پروژه",
+    "history": "تاریخچه",
+    "noData": "برای این بازه هنوز داده‌ای نیست."
+  },
+  "settings": {
+    "title": "تنظیمات",
+    "profile": "پروفایل",
+    "language": "زبان",
+    "theme": "پوسته",
+    "dark": "تیره",
+    "light": "روشن",
+    "timezone": "منطقه زمانی",
+    "displayName": "نام نمایشی",
+    "username": "نام کاربری",
+    "preferences": "ترجیحات",
+    "weekStart": "شروع هفته از",
+    "showQuotes": "نمایش نقل‌قول‌های انگیزشی توی بنر",
+    "data": "داده‌ها",
+    "exportCsv": "خروجی CSV از تاریخچه",
+    "dangerZone": "منطقه خطر",
+    "deleteAllData": "حذف همه داده‌هام",
+    "deleteAllDataHint": "همه پروژه‌ها، تسک‌ها، لاگ‌ها و ایردراپ‌ها پاک می‌شن. حسابت می‌مونه — قابل بازگشت نیست.",
+    "deleteConfirm": "همه چیز برای همیشه پاک می‌شه. مطمئنی؟",
+    "save": "ذخیره تغییرات",
+    "saved": "ذخیره شد"
+  },
+  "common": {
+    "loading": "در حال بارگذاری…",
+    "cancel": "انصراف",
+    "confirm": "تأیید",
+    "none": "—"
+  }
+}

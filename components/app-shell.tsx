@@ -1,0 +1,99 @@
+"use client";
+
+import { useTranslations } from "next-intl";
+import { Link, usePathname } from "@/lib/i18n/navigation";
+import { LayoutGrid, ClipboardList, BarChart3, Settings, Gift } from "lucide-react";
+import { TickerBanner } from "./ticker-banner";
+import { MiniClock } from "./mini-clock";
+import { ThemeToggle } from "./theme-toggle";
+import { LocaleSwitcher } from "./locale-switcher";
+import { SignOutButton } from "./sign-out-button";
+import type { ReactNode } from "react";
+
+const NAV = [
+  { href: "/", key: "dashboard", icon: LayoutGrid },
+  { href: "/admin", key: "admin", icon: ClipboardList },
+  { href: "/stats", key: "stats", icon: BarChart3 },
+  { href: "/airdrops", key: "airdrops", icon: Gift },
+  { href: "/settings", key: "settings", icon: Settings },
+] as const;
+
+export function AppShell({
+  children,
+  timezone,
+  displayName,
+  showQuotes,
+}: {
+  children: ReactNode;
+  timezone: string;
+  displayName: string | null;
+  showQuotes: boolean;
+}) {
+  const t = useTranslations("nav");
+  const tApp = useTranslations("app");
+  const pathname = usePathname();
+
+  return (
+    <div className="min-h-screen bg-bg">
+      <TickerBanner timezone={timezone} showQuotes={showQuotes} />
+
+      <header className="sticky top-0 z-30 border-b border-border bg-bg/90 backdrop-blur">
+        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
+          <div className="flex items-center gap-2">
+            <span className="h-2 w-2 rounded-full bg-teal" />
+            <span className="font-display text-lg font-semibold tracking-tight">{tApp("name")}</span>
+          </div>
+
+          <nav className="hidden gap-1 sm:flex">
+            {NAV.map((item) => {
+              const active = pathname === item.href;
+              const Icon = item.icon;
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href as any}
+                  className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm transition ${
+                    active ? "bg-surface text-gold" : "text-muted hover:text-ink"
+                  }`}
+                >
+                  <Icon size={15} />
+                  {t(item.key)}
+                </Link>
+              );
+            })}
+          </nav>
+
+          <div className="flex items-center gap-2">
+            {displayName && <span className="hidden text-xs text-muted md:inline">{displayName}</span>}
+            <LocaleSwitcher />
+            <ThemeToggle />
+            <SignOutButton />
+          </div>
+        </div>
+      </header>
+
+      <main className="mx-auto max-w-6xl px-4 pb-24 pt-6 sm:pb-10">{children}</main>
+
+      <MiniClock timezone={timezone} />
+
+      <nav className="fixed inset-x-0 bottom-0 z-30 flex justify-around border-t border-border bg-surface py-2 sm:hidden">
+        {NAV.map((item) => {
+          const active = pathname === item.href;
+          const Icon = item.icon;
+          return (
+            <Link
+              key={item.href}
+              href={item.href as any}
+              className={`flex flex-col items-center gap-0.5 px-3 py-1 text-[10px] ${
+                active ? "text-gold" : "text-muted"
+              }`}
+            >
+              <Icon size={18} />
+              {t(item.key)}
+            </Link>
+          );
+        })}
+      </nav>
+    </div>
+  );
+}

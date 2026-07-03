@@ -1,0 +1,64 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg: 247 245 240;
+  --surface: 255 255 255;
+  --surface2: 243 241 236;
+  --border: 224 221 213;
+  --ink: 26 29 36;
+  --muted: 107 114 128;
+  --gold: 176 121 26;
+  --teal: 13 138 136;
+  --danger: 196 62 42;
+}
+
+.dark {
+  --bg: 10 13 19;
+  --surface: 17 21 30;
+  --surface2: 22 27 38;
+  --border: 34 40 54;
+  --ink: 233 234 239;
+  --muted: 139 146 165;
+  --gold: 232 163 61;
+  --teal: 61 219 217;
+  --danger: 232 84 61;
+}
+
+* {
+  border-color: rgb(var(--border));
+}
+
+html {
+  color-scheme: light;
+}
+html.dark {
+  color-scheme: dark;
+}
+
+body {
+  background-color: rgb(var(--bg));
+  color: rgb(var(--ink));
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+[dir="rtl"] body {
+  font-family: var(--font-fa), sans-serif;
+}
+
+::selection {
+  background-color: rgb(var(--gold) / 0.3);
+}
+
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}

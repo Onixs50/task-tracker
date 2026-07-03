@@ -1,0 +1,162 @@
+{
+  "app": { "name": "Daily Ledger" },
+  "nav": {
+    "dashboard": "Today",
+    "admin": "Manage",
+    "stats": "Stats",
+    "airdrops": "Airdrops",
+    "settings": "Settings",
+    "signOut": "Sign out"
+  },
+  "auth": {
+    "tagline": "Run every project's daily ops from one ledger.",
+    "signIn": "Sign in",
+    "signUp": "Sign up",
+    "email": "Email",
+    "password": "Password",
+    "username": "Username",
+    "usernameHint": "This is what your mascot will call you",
+    "google": "Continue with Google",
+    "or": "or",
+    "submitSignIn": "Sign in",
+    "submitSignUp": "Create account",
+    "switchToSignUp": "New here? Create an account",
+    "switchToSignIn": "Already have an account? Sign in",
+    "mascotSignup": "Sign up and let's build your ledger together!",
+    "error": {
+      "generic": "Something went wrong. Check your details and try again.",
+      "usernameTaken": "That username is already taken."
+    }
+  },
+  "onboarding": {
+    "title": "One last thing",
+    "prompt": "What should we call you?",
+    "placeholder": "Pick a username",
+    "save": "Save and continue"
+  },
+  "dashboard": {
+    "title": "Today's board",
+    "welcome": "Welcome back, {name}!",
+    "welcomeFirst": "Good to have you, {name}!",
+    "empty": "Nothing on the ledger for today. Add tasks from Manage.",
+    "allDone": "Every task on today's ledger is closed out.",
+    "streak": "day streak",
+    "remaining": "left today",
+    "markDone": "Mark done",
+    "undo": "Undo",
+    "doneToday": "Closed out today",
+    "doneAt": "Closed at {time}"
+  },
+  "clock": {
+    "analog": "Analog",
+    "digital": "Digital"
+  },
+  "priority": { "low": "Low", "medium": "Medium", "high": "High" },
+  "category": {
+    "transaction": "On-chain transaction",
+    "liquidity_check": "Liquidity check",
+    "daily_checkin": "Daily check-in",
+    "discord": "Discord chat",
+    "tweet": "Tweet",
+    "content": "Content (photo/video)",
+    "custom": "Custom"
+  },
+  "recurrence": {
+    "daily": "Every day",
+    "weekly": "Weekly",
+    "custom_dates": "Specific dates",
+    "once": "One time"
+  },
+  "days": {
+    "0": "Sun", "1": "Mon", "2": "Tue", "3": "Wed", "4": "Thu", "5": "Fri", "6": "Sat"
+  },
+  "admin": {
+    "title": "Manage your ledger",
+    "projects": "Projects",
+    "newProject": "New project",
+    "projectName": "Project name",
+    "tasks": "Tasks",
+    "newTask": "New task",
+    "editTask": "Edit task",
+    "taskTitle": "Task title",
+    "taskDescription": "Description (optional)",
+    "category": "Category",
+    "emoji": "Icon",
+    "recurrenceType": "Repeats",
+    "startDate": "Start date",
+    "endDate": "End date (optional)",
+    "customDates": "Pick dates",
+    "weekDays": "Pick weekdays",
+    "priority": "Priority",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "duplicate": "Duplicate",
+    "archive": "Archive",
+    "unarchive": "Restore",
+    "search": "Search tasks…",
+    "filterAll": "All",
+    "showArchived": "Show archived",
+    "noProjects": "No projects yet — create one to start adding tasks.",
+    "noTasks": "No tasks match here yet.",
+    "confirmDelete": "Delete this? This can't be undone.",
+    "color": "Color"
+  },
+  "airdrops": {
+    "title": "Airdrops",
+    "add": "Log airdrop",
+    "projectName": "Project name",
+    "claimDate": "Date",
+    "value": "Value / amount (optional)",
+    "notes": "Notes (optional)",
+    "status": "Status",
+    "statusClaimed": "Claimed",
+    "statusPending": "Pending",
+    "statusMissed": "Missed",
+    "empty": "No airdrops logged yet.",
+    "save": "Save",
+    "delete": "Delete"
+  },
+  "stats": {
+    "title": "Performance",
+    "range3d": "3 days",
+    "rangeWeek": "Week",
+    "rangeMonth": "Month",
+    "rangeYear": "Year",
+    "done": "Done",
+    "missed": "Missed",
+    "completionRate": "Completion rate",
+    "byProject": "By project",
+    "history": "History",
+    "noData": "No history yet for this range."
+  },
+  "settings": {
+    "title": "Settings",
+    "profile": "Profile",
+    "language": "Language",
+    "theme": "Theme",
+    "dark": "Dark",
+    "light": "Light",
+    "timezone": "Timezone",
+    "displayName": "Display name",
+    "username": "Username",
+    "preferences": "Preferences",
+    "weekStart": "Week starts on",
+    "showQuotes": "Show motivational quotes in the banner",
+    "data": "Data",
+    "exportCsv": "Export history as CSV",
+    "dangerZone": "Danger zone",
+    "deleteAllData": "Delete all my data",
+    "deleteAllDataHint": "Removes every project, task, log, and airdrop. Your account stays — this can't be undone.",
+    "deleteConfirm": "This deletes everything permanently. Are you sure?",
+    "save": "Save changes",
+    "saved": "Saved"
+  },
+  "common": {
+    "loading": "Loading…",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "none": "—"
+  }
+}
