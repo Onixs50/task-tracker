@@ -20,6 +20,28 @@ Authentication → Sign In / Providers → Email
 ```
 و گزینه‌ی **Confirm email** رو خاموش کن. با این کار signUp بلافاصله بدون نیاز به کلیک روی لینک ایمیل، کاربر رو وارد می‌کنه.
 
+## اگه migration_002/003 رو قبلاً زدی، این یکی رو هم اجرا کن
+
+`supabase/migration_004.sql` — سرعت بنر، جدول پیام‌های سفارشی (quotes)، و مقدار دلاری ایردراپ‌ها رو اضافه می‌کنه، و RLS پروفایل رو هم دوباره مطمئن می‌سازه (برای رفع باگ «هی یوزرنیم می‌پرسه»).
+
+## فراموشی رمز عبور
+
+چون یه لینک ایمیلی برای ریست رمز فرستاده می‌شه، باید آدرس بازگشتش رو هم به Supabase معرفی کنی — دقیقاً مثل مرحله OAuth:
+
+برو **Authentication → URL Configuration → Redirect URLs** و این رو هم اضافه کن:
+```
+https://YOUR_DOMAIN/fa/reset-password
+```
+(یا هر لوکیلی که استفاده می‌کنی — en/fa)
+
+## لینک توییتر و کردیت Onixia
+
+فوتر سایت یه لینک توییتر اختیاریه. اگه می‌خوای نشون داده بشه، توی Environment Variables (هم لوکال `.env.local` هم Vercel) این رو اضافه کن:
+```
+NEXT_PUBLIC_TWITTER_URL=https://twitter.com/your_handle
+```
+اگه خالی بذاری، فقط همون خط «ساخته‌شده توسط Onixia» نشون داده می‌شه.
+
 ## مرحله ۱ — دیتابیس روی Supabase
 
 1. وارد پروژه‌ای که قبلاً توی [supabase.com](https://supabase.com) ساختی بشو.

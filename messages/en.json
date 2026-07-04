@@ -1,5 +1,6 @@
 {
   "app": { "name": "Daily Ledger" },
+  "footer": { "builtBy": "Built by Onixia" },
   "nav": {
     "dashboard": "Today",
     "admin": "Manage",
@@ -23,6 +24,12 @@
     "switchToSignUp": "New here? Create an account",
     "switchToSignIn": "Already have an account? Sign in",
     "mascotSignup": "Sign up and let's build your ledger together!",
+    "forgotPassword": "Forgot password?",
+    "sendResetLink": "Send reset link",
+    "resetSent": "Check your email for a reset link.",
+    "resetTitle": "Set a new password",
+    "resetSubmit": "Update password",
+    "resetDone": "Password updated — you can sign in now.",
     "error": {
       "generic": "Something went wrong. Check your details and try again.",
       "usernameTaken": "That username is already taken."
@@ -36,6 +43,7 @@
   },
   "dashboard": {
     "title": "Today's board",
+    "titleWithName": "{name}'s board for today",
     "welcome": "Welcome back, {name}!",
     "welcomeFirst": "Good to have you, {name}!",
     "empty": "Nothing on the ledger for today. Add tasks from Manage.",
@@ -101,7 +109,12 @@
     "noProjects": "No projects yet — create one to start adding tasks.",
     "noTasks": "No tasks match here yet.",
     "confirmDelete": "Delete this? This can't be undone.",
-    "color": "Color"
+    "color": "Color",
+    "quotes": "Banner messages",
+    "quotesHint": "Whatever you add here rotates through your top banner — no defaults, just your own words.",
+    "newQuote": "Write a message…",
+    "addQuote": "Add",
+    "noQuotes": "No custom messages yet — the banner will just show the date and time."
   },
   "airdrops": {
     "title": "Airdrops",
@@ -109,6 +122,8 @@
     "projectName": "Project name",
     "claimDate": "Date",
     "value": "Value / amount (optional)",
+    "valueUsd": "Value in USD (optional)",
+    "totalReceived": "Total received",
     "notes": "Notes (optional)",
     "status": "Status",
     "statusClaimed": "Claimed",
@@ -141,7 +156,9 @@
     "timezone": "Timezone",
     "displayName": "Display name",
     "username": "Username",
+    "email": "Signed up with",
     "preferences": "Preferences",
+    "bannerSpeed": "Banner scroll speed",
     "weekStart": "Week starts on",
     "showQuotes": "Show motivational quotes in the banner",
     "data": "Data",

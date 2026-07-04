@@ -62,3 +62,9 @@ body {
     transition-duration: 0.001ms !important;
   }
 }
+
+@keyframes fadeFlash {
+  0% { opacity: 0; }
+  40% { opacity: 1; }
+  100% { opacity: 0; }
+}

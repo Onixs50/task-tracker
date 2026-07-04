@@ -12,22 +12,23 @@ export default async function AppGroupLayout({ children }: { children: ReactNode
   let timezone = "UTC";
   let displayName: string | null = null;
   let username: string | null = null;
-  let showQuotes = true;
+  let bannerSpeed = 3;
+  let quotes: string[] = [];
 
   if (user) {
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("timezone, display_name, username, show_quotes")
-      .eq("id", user.id)
-      .single();
+    const [{ data: profile }, { data: quoteRows }] = await Promise.all([
+      supabase.from("profiles").select("timezone, display_name, username, banner_speed").eq("id", user.id).single(),
+      supabase.from("quotes").select("text").order("created_at"),
+    ]);
     timezone = profile?.timezone ?? "UTC";
     displayName = profile?.display_name ?? null;
     username = profile?.username ?? null;
-    showQuotes = profile?.show_quotes ?? true;
+    bannerSpeed = profile?.banner_speed ?? 3;
+    quotes = (quoteRows ?? []).map((q) => q.text);
   }
 
   return (
-    <AppShell timezone={timezone} displayName={username ?? displayName} showQuotes={showQuotes}>
+    <AppShell timezone={timezone} displayName={username ?? displayName} quotes={quotes} bannerSpeed={bannerSpeed}>
       <UsernameGate initialUsername={username}>{children}</UsernameGate>
     </AppShell>
   );

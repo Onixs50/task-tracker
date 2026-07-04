@@ -2,6 +2,7 @@
 
 import { useState, type ReactNode } from "react";
 import { useTranslations } from "next-intl";
+import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Mascot } from "./mascot";
 
@@ -14,6 +15,7 @@ export function UsernameGate({
 }) {
   const t = useTranslations("onboarding");
   const tAuth = useTranslations("auth");
+  const router = useRouter();
   const [username, setUsername] = useState(initialUsername);
   const [value, setValue] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -39,6 +41,7 @@ export function UsernameGate({
       return;
     }
     setUsername(trimmed);
+    router.refresh();
   }
 
   if (username) return <>{children}</>;

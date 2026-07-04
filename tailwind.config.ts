@@ -62,6 +62,31 @@ const config: Config = {
           "0%, 100%": { transform: "translateY(0) rotate(0deg)" },
           "50%": { transform: "translateY(-14px) rotate(4deg)" },
         },
+        orbit: {
+          "0%": { transform: "rotate(0deg)" },
+          "100%": { transform: "rotate(360deg)" },
+        },
+        "orbit-reverse": {
+          "0%": { transform: "rotate(360deg)" },
+          "100%": { transform: "rotate(0deg)" },
+        },
+        "pulse-glow": {
+          "0%, 100%": { boxShadow: "0 0 0 0 rgb(var(--gold) / 0.35)" },
+          "50%": { boxShadow: "0 0 0 8px rgb(var(--gold) / 0)" },
+        },
+        "page-fade-in": {
+          "0%": { opacity: "0" },
+          "100%": { opacity: "1" },
+        },
+        "logo-pulse": {
+          "0%, 100%": { opacity: "0.6", transform: "scale(1)" },
+          "50%": { opacity: "1", transform: "scale(1.06)" },
+        },
+        "vortex-in": {
+          "0%": { transform: "translate(0, 0) scale(1) rotate(0deg)", opacity: "1" },
+          "70%": { opacity: "1" },
+          "100%": { transform: "translate(var(--vx, 0), var(--vy, 0)) scale(0.1) rotate(400deg)", opacity: "0" },
+        },
       },
       animation: {
         ticker: "ticker 38s linear infinite",
@@ -72,6 +97,12 @@ const config: Config = {
         "mascot-wave": "mascot-wave 1.8s ease-in-out infinite",
         "mascot-blink": "mascot-blink 4.5s ease-in-out infinite",
         "float-slow": "float-slow 6s ease-in-out infinite",
+        orbit: "orbit 14s linear infinite",
+        "orbit-reverse": "orbit-reverse 14s linear infinite",
+        "pulse-glow": "pulse-glow 2.4s ease-in-out infinite",
+        "page-fade-in": "page-fade-in 0.5s ease-out",
+        "logo-pulse": "logo-pulse 2.6s ease-in-out infinite",
+        "vortex-in": "vortex-in 0.7s cubic-bezier(0.6,0,0.9,0.4) forwards",
       },
     },
   },

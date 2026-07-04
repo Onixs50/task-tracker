@@ -9,7 +9,7 @@ const intlMiddleware = createIntlMiddleware({
   localePrefix: "always",
 });
 
-const PUBLIC_PATHS = ["/login", "/auth/callback"];
+const PUBLIC_PATHS = ["/login", "/auth/callback", "/reset-password"];
 
 export async function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname;

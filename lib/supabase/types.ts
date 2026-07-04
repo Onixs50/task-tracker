@@ -25,10 +25,21 @@ export interface Database {
           week_start: number;
           show_quotes: boolean;
           clock_size: string;
+          banner_speed: number;
           created_at: string;
         };
         Insert: Partial<Database["public"]["Tables"]["profiles"]["Row"]> & { id: string };
         Update: Partial<Database["public"]["Tables"]["profiles"]["Row"]>;
+      };
+      quotes: {
+        Row: {
+          id: string;
+          user_id: string;
+          text: string;
+          created_at: string;
+        };
+        Insert: Partial<Database["public"]["Tables"]["quotes"]["Row"]> & { user_id: string; text: string };
+        Update: Partial<Database["public"]["Tables"]["quotes"]["Row"]>;
       };
       projects: {
         Row: {
@@ -95,6 +106,7 @@ export interface Database {
           project_name: string;
           claim_date: string;
           value_text: string | null;
+          value_usd: number | null;
           status: AirdropStatus;
           notes: string | null;
           created_at: string;

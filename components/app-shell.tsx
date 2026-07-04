@@ -8,6 +8,8 @@ import { MiniClock } from "./mini-clock";
 import { ThemeToggle } from "./theme-toggle";
 import { LocaleSwitcher } from "./locale-switcher";
 import { SignOutButton } from "./sign-out-button";
+import { EntryTransition } from "./entry-transition";
+import { Footer } from "./footer";
 import type { ReactNode } from "react";
 
 const NAV = [
@@ -22,12 +24,14 @@ export function AppShell({
   children,
   timezone,
   displayName,
-  showQuotes,
+  quotes,
+  bannerSpeed,
 }: {
   children: ReactNode;
   timezone: string;
   displayName: string | null;
-  showQuotes: boolean;
+  quotes: string[];
+  bannerSpeed: number;
 }) {
   const t = useTranslations("nav");
   const tApp = useTranslations("app");
@@ -35,7 +39,8 @@ export function AppShell({
 
   return (
     <div className="min-h-screen bg-bg">
-      <TickerBanner timezone={timezone} showQuotes={showQuotes} />
+      <EntryTransition />
+      <TickerBanner timezone={timezone} quotes={quotes} bannerSpeed={bannerSpeed} />
 
       <header className="sticky top-0 z-30 border-b border-border bg-bg/90 backdrop-blur">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
@@ -72,7 +77,10 @@ export function AppShell({
         </div>
       </header>
 
-      <main className="mx-auto max-w-6xl px-4 pb-24 pt-6 sm:pb-10">{children}</main>
+      <main className="mx-auto max-w-6xl px-4 pb-24 pt-6 sm:pb-10">
+        {children}
+        <Footer />
+      </main>
 
       <MiniClock timezone={timezone} />
 

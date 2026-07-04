@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
@@ -28,12 +28,18 @@ export function SettingsForm({ profile }: { profile: Profile | null }) {
 
   const [displayName, setDisplayName] = useState(profile?.display_name ?? "");
   const [username, setUsername] = useState(profile?.username ?? "");
+  const [email, setEmail] = useState<string | null>(null);
   const [timezone, setTimezone] = useState(profile?.timezone ?? "UTC");
   const [weekStart, setWeekStart] = useState(profile?.week_start ?? 6);
-  const [showQuotes, setShowQuotes] = useState(profile?.show_quotes ?? true);
+  const [bannerSpeed, setBannerSpeed] = useState(profile?.banner_speed ?? 3);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [exporting, setExporting] = useState(false);
+
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.auth.getUser().then(({ data }) => setEmail(data.user?.email ?? null));
+  }, []);
 
   async function save() {
     setError(null);
@@ -50,7 +56,7 @@ export function SettingsForm({ profile }: { profile: Profile | null }) {
         timezone,
         theme,
         week_start: weekStart,
-        show_quotes: showQuotes,
+        banner_speed: bannerSpeed,
       })
       .eq("id", user.id);
     if (updateError) {
@@ -59,6 +65,7 @@ export function SettingsForm({ profile }: { profile: Profile | null }) {
     }
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
+    router.refresh();
   }
 
   async function exportCsv() {
@@ -120,6 +127,13 @@ export function SettingsForm({ profile }: { profile: Profile | null }) {
           />
         </div>
 
+        {email && (
+          <div>
+            <label className="mb-1 block text-xs text-muted">{t("email")}</label>
+            <p className="rounded-sm border border-border bg-bg px-2.5 py-2 text-sm text-muted">{email}</p>
+          </div>
+        )}
+
         <div>
           <label className="mb-1 block text-xs text-muted">{t("timezone")}</label>
           <select
@@ -170,15 +184,21 @@ export function SettingsForm({ profile }: { profile: Profile | null }) {
           </div>
         </div>
 
-        <label className="flex items-center justify-between text-sm">
-          {t("showQuotes")}
+        <div>
+          <label className="mb-1 flex items-center justify-between text-xs text-muted">
+            <span>{t("bannerSpeed")}</span>
+            <span className="font-mono">{bannerSpeed}</span>
+          </label>
           <input
-            type="checkbox"
-            checked={showQuotes}
-            onChange={(e) => setShowQuotes(e.target.checked)}
-            className="h-4 w-4 accent-gold"
+            type="range"
+            min={1}
+            max={5}
+            step={1}
+            value={bannerSpeed}
+            onChange={(e) => setBannerSpeed(Number(e.target.value))}
+            className="w-full accent-gold"
           />
-        </label>
+        </div>
       </section>
 
       {error && <p className="text-xs text-danger">{error}</p>}

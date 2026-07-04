@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { useLocale, useTranslations } from "next-intl";
+import { useLocale } from "next-intl";
 import {
   formatDisplayDate,
   formatGregorianOnly,
@@ -9,14 +9,29 @@ import {
   formatTimeInTZ,
   isoDateInTZ,
 } from "@/lib/dates";
-import { QUOTES } from "@/lib/quotes";
 
-export function TickerBanner({ timezone, showQuotes }: { timezone: string; showQuotes: boolean }) {
+// speed 1 (slow) .. 5 (fast)
+function durationForSpeed(speed: number) {
+  const map: Record<number, number> = { 1: 55, 2: 42, 3: 32, 4: 22, 5: 14 };
+  return map[speed] ?? 32;
+}
+function intervalForSpeed(speed: number) {
+  const map: Record<number, number> = { 1: 10000, 2: 8500, 3: 7000, 4: 5500, 5: 4000 };
+  return map[speed] ?? 7000;
+}
+
+export function TickerBanner({
+  timezone,
+  quotes,
+  bannerSpeed,
+}: {
+  timezone: string;
+  quotes: string[];
+  bannerSpeed: number;
+}) {
   const locale = useLocale() as "en" | "fa";
-  const tDays = useTranslations("days");
   const [now, setNow] = useState<Date | null>(null);
   const [slide, setSlide] = useState(0);
-  const [quoteIdx, setQuoteIdx] = useState(0);
 
   useEffect(() => {
     setNow(new Date());
@@ -24,30 +39,26 @@ export function TickerBanner({ timezone, showQuotes }: { timezone: string; showQ
     return () => clearInterval(clockId);
   }, []);
 
-  const slideCount = showQuotes ? 2 : 1;
+  const slideCount = quotes.length > 0 ? 1 + quotes.length : 1;
 
   useEffect(() => {
     if (slideCount < 2) return;
-    const id = setInterval(() => {
-      setSlide((s) => (s + 1) % slideCount);
-      setQuoteIdx(Math.floor(Math.random() * QUOTES.en.length));
-    }, 7000);
+    const id = setInterval(() => setSlide((s) => (s + 1) % slideCount), intervalForSpeed(bannerSpeed));
     return () => clearInterval(id);
-  }, [slideCount]);
+  }, [slideCount, bannerSpeed]);
 
   const dir = locale === "fa" ? "rtl" : "ltr";
   const animClass = dir === "rtl" ? "animate-tickerRtl" : "animate-ticker";
+  const duration = `${durationForSpeed(bannerSpeed)}s`;
 
   const content = useMemo(() => {
     if (!now) return null;
 
-    if (slide === 1 && showQuotes) {
+    if (slide > 0 && quotes[slide - 1]) {
       return (
         <>
           <span className="text-gold">✦</span>
-          <span className="text-ink">{QUOTES.en[quoteIdx]}</span>
-          <span className="text-muted">·</span>
-          <span className="text-teal">{QUOTES.fa[quoteIdx]}</span>
+          <span className="text-ink">{quotes[slide - 1]}</span>
         </>
       );
     }
@@ -74,7 +85,7 @@ export function TickerBanner({ timezone, showQuotes }: { timezone: string; showQ
         <span className="text-muted">{timezone}</span>
       </>
     );
-  }, [now, slide, quoteIdx, showQuotes, timezone, locale]);
+  }, [now, slide, quotes, timezone, locale]);
 
   if (!content) {
     return <div className="h-11 bg-surface border-b border-border" />;
@@ -91,7 +102,7 @@ export function TickerBanner({ timezone, showQuotes }: { timezone: string; showQ
       <div
         key={slide}
         className={`absolute inset-y-0 flex items-center whitespace-nowrap ${animClass}`}
-        style={{ willChange: "transform" }}
+        style={{ willChange: "transform", animationDuration: duration }}
       >
         {Array.from({ length: 8 }).map((_, i) => (
           <span key={i}>{segment}</span>

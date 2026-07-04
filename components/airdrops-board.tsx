@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
-import { Plus, Trash2, Gift } from "lucide-react";
+import { Plus, Trash2, Gift, Sparkles } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import type { AirdropStatus, Database } from "@/lib/supabase/types";
 
@@ -18,6 +18,33 @@ const STATUS_CLASS: Record<AirdropStatus, string> = {
   missed: "border-danger/40 bg-danger/10 text-danger",
 };
 
+function AnimatedTotal({ value }: { value: number }) {
+  const [display, setDisplay] = useState(0);
+  const prevRef = useRef(0);
+
+  useEffect(() => {
+    const from = prevRef.current;
+    const to = value;
+    const start = performance.now();
+    const duration = 800;
+
+    function tick(now: number) {
+      const progress = Math.min((now - start) / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      setDisplay(from + (to - from) * eased);
+      if (progress < 1) requestAnimationFrame(tick);
+      else prevRef.current = to;
+    }
+    requestAnimationFrame(tick);
+  }, [value]);
+
+  return (
+    <span className="tabular">
+      ${display.toLocaleString(undefined, { maximumFractionDigits: 2 })}
+    </span>
+  );
+}
+
 export function AirdropsBoard({ initial }: { initial: Airdrop[] }) {
   const t = useTranslations("airdrops");
   const [items, setItems] = useState(initial);
@@ -25,10 +52,16 @@ export function AirdropsBoard({ initial }: { initial: Airdrop[] }) {
   const [form, setForm] = useState({
     project_name: "",
     claim_date: todayISO(),
+    value_usd: "",
     value_text: "",
     status: "claimed" as AirdropStatus,
     notes: "",
   });
+
+  const total = useMemo(
+    () => items.filter((a) => a.status === "claimed").reduce((sum, a) => sum + (a.value_usd ?? 0), 0),
+    [items]
+  );
 
   async function save() {
     if (!form.project_name.trim()) return;
@@ -43,6 +76,7 @@ export function AirdropsBoard({ initial }: { initial: Airdrop[] }) {
         user_id: user.id,
         project_name: form.project_name.trim(),
         claim_date: form.claim_date,
+        value_usd: form.value_usd ? Number(form.value_usd) : null,
         value_text: form.value_text.trim() || null,
         status: form.status,
         notes: form.notes.trim() || null,
@@ -51,7 +85,7 @@ export function AirdropsBoard({ initial }: { initial: Airdrop[] }) {
       .single();
     if (!error && data) {
       setItems((prev) => [data, ...prev]);
-      setForm({ project_name: "", claim_date: todayISO(), value_text: "", status: "claimed", notes: "" });
+      setForm({ project_name: "", claim_date: todayISO(), value_usd: "", value_text: "", status: "claimed", notes: "" });
       setShowForm(false);
     }
   }
@@ -63,7 +97,17 @@ export function AirdropsBoard({ initial }: { initial: Airdrop[] }) {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
+      <div className="relative overflow-hidden rounded-lg border border-gold/30 bg-gradient-to-br from-surface to-surface2 p-6 text-center">
+        <div className="pointer-events-none absolute -right-6 -top-6 h-28 w-28 rounded-full bg-gold/10 blur-2xl" />
+        <div className="pointer-events-none absolute -left-8 bottom-0 h-24 w-24 rounded-full bg-teal/10 blur-2xl" />
+        <Sparkles size={16} className="mx-auto mb-1 text-gold" />
+        <p className="text-xs uppercase tracking-wide text-muted">{t("totalReceived")}</p>
+        <p className="mt-1 font-display text-4xl font-semibold text-gold">
+          <AnimatedTotal value={total} />
+        </p>
+      </div>
+
       <div className="flex justify-end">
         <button
           onClick={() => setShowForm((v) => !v)}
@@ -89,12 +133,20 @@ export function AirdropsBoard({ initial }: { initial: Airdrop[] }) {
               className="rounded-sm border border-border bg-bg px-2.5 py-2 text-sm outline-none focus:border-gold/60"
             />
             <input
-              value={form.value_text}
-              onChange={(e) => setForm({ ...form, value_text: e.target.value })}
-              placeholder={t("value")}
+              type="number"
+              step="0.01"
+              value={form.value_usd}
+              onChange={(e) => setForm({ ...form, value_usd: e.target.value })}
+              placeholder={t("valueUsd")}
               className="rounded-sm border border-border bg-bg px-2.5 py-2 text-sm outline-none focus:border-gold/60"
             />
           </div>
+          <input
+            value={form.value_text}
+            onChange={(e) => setForm({ ...form, value_text: e.target.value })}
+            placeholder={t("value")}
+            className="w-full rounded-sm border border-border bg-bg px-2.5 py-2 text-sm outline-none focus:border-gold/60"
+          />
           <div className="flex gap-1.5">
             {(["claimed", "pending", "missed"] as AirdropStatus[]).map((s) => (
               <button
@@ -115,7 +167,7 @@ export function AirdropsBoard({ initial }: { initial: Airdrop[] }) {
             rows={2}
             className="w-full rounded-sm border border-border bg-bg px-2.5 py-2 text-sm outline-none focus:border-gold/60"
           />
-          <button onClick={save} className="w-full rounded-sm bg-gold/15 py-2 text-sm text-gold hover:bg-gold/25">
+          <button onClick={save} className="w-full animate-pulse-glow rounded-sm bg-gold/15 py-2 text-sm text-gold hover:bg-gold/25">
             {t("save")}
           </button>
         </div>
@@ -136,6 +188,9 @@ export function AirdropsBoard({ initial }: { initial: Airdrop[] }) {
                   <span className={`rounded-full border px-2 py-0.5 text-[10px] ${STATUS_CLASS[a.status]}`}>
                     {t(`status${a.status.charAt(0).toUpperCase()}${a.status.slice(1)}` as any)}
                   </span>
+                  {a.value_usd != null && (
+                    <span className="font-mono text-xs text-gold">${a.value_usd.toLocaleString()}</span>
+                  )}
                 </div>
                 <p className="truncate text-xs text-muted">
                   {a.claim_date}

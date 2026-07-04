@@ -61,7 +61,7 @@ export default async function DashboardPage() {
       )}
 
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="font-display text-2xl font-semibold">{t("title")}</h1>
+        <h1 className="font-display text-2xl font-semibold">{name ? t("titleWithName", { name }) : t("title")}</h1>
         <div className="flex items-center gap-2">
           {dueToday.length > 0 && (
             <span className="rounded-full border border-gold/30 bg-gold/10 px-3 py-1 font-mono text-xs text-gold">
