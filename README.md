@@ -42,6 +42,35 @@ NEXT_PUBLIC_TWITTER_URL=https://twitter.com/your_handle
 ```
 اگه خالی بذاری، فقط همون خط «ساخته‌شده توسط Onixia» نشون داده می‌شه.
 
+## اگه migration_004 رو زدی، این یکی هم لازمه: `migration_005_repair.sql`
+
+این یکی ستون‌های `theme` و `timezone` که توی `profiles` گم شده بودن (باعث خطای «Could not find the theme column» و ذخیره نشدن تنظیمات می‌شد) رو اضافه می‌کنه، و RLS همه جدول‌ها رو دوباره مطمئن می‌سازه.
+
+## ایمیل تایید با کد (نه لینک)
+
+چون می‌خواستی به‌جای لینک، یه کد ۶ رقمی بیاد:
+
+1. توی Supabase برو **Authentication → Sign In / Providers → Email** و **Confirm email** رو **روشن** کن (این بار برخلاف قبل، چون می‌خوایم واقعاً تایید ایمیل انجام بشه).
+2. برو **Authentication → Email Templates → Confirm signup** و کل HTML رو با این جایگزین کن (به‌جای لینک، کد رو نشون می‌ده):
+
+```html
+<h2>Daily Ledger</h2>
+<p>Your verification code is:</p>
+<h1 style="letter-spacing: 4px; font-size: 32px;">{{ .Token }}</h1>
+<p>Enter this code on the sign-up screen to finish creating your account.</p>
+<p style="color:#888; font-size:12px;">If you didn't request this, you can ignore this email.</p>
+```
+
+با این تغییر، دیگه ایمیل ضایع پیش‌فرض Supabase (اون که "Confirm your email address... powered by Supabase" می‌گفت) نمیاد؛ به‌جاش یه ایمیل با اسم پروژه و کد ۶ رقمی میاد، و توی سایت بعد از ثبت‌نام یه صفحه «کد رو وارد کن» باز می‌شه.
+
+## صفحه «این سایت چیه؟»
+
+یه صفحه‌ی عمومی و دوزبانه به آدرس `/fa/about` یا `/en/about` اضافه شد که از پایین صفحه ورود لینک می‌شه. اگه بخوای آدرس گیت‌هابت هم اونجا نشون داده بشه:
+
+```
+NEXT_PUBLIC_GITHUB_URL=https://github.com/your_username/your_repo
+```
+
 ## مرحله ۱ — دیتابیس روی Supabase
 
 1. وارد پروژه‌ای که قبلاً توی [supabase.com](https://supabase.com) ساختی بشو.

@@ -5,6 +5,7 @@ import { isDueOn } from "@/lib/recurrence";
 import { computeStreak } from "@/lib/stats";
 import { TaskChecklist } from "@/components/task-checklist";
 import { Mascot } from "@/components/mascot";
+import { TaskReminder } from "@/components/task-reminder";
 
 export default async function DashboardPage() {
   const supabase = createClient();
@@ -53,6 +54,7 @@ export default async function DashboardPage() {
 
   return (
     <div className="space-y-6">
+      <TaskReminder remaining={remaining} timezone={timezone} />
       {name && (
         <Mascot
           size="sm"

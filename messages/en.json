@@ -1,6 +1,26 @@
 {
   "app": { "name": "Daily Ledger" },
   "footer": { "builtBy": "Built by Onixia" },
+  "about": {
+    "back": "Back",
+    "title": "What's Daily Ledger?",
+    "intro": "A daily operations board for everyone running more than one crypto project at once — the boring-but-critical stuff (transactions, Discord check-ins, tweets, content, airdrops) tracked in one place instead of scattered across notes.",
+    "howTitle": "How it works",
+    "howBody": "You define the projects and recurring tasks once in Manage. Every day, Daily Ledger figures out what's due and shows it as a simple checklist. Check it off, and it's logged forever — so Stats can show you exactly what got done and what didn't, by day, week, month, or year.",
+    "featuresTitle": "What's inside",
+    "features": [
+      "Recurring tasks — daily, weekly, specific dates, or one-off",
+      "Airdrop tracker with a running USD total",
+      "Bilingual, RTL-aware, dual calendar (Jalali + Gregorian)",
+      "Your own custom messages rotating through the top banner",
+      "Full history with CSV export",
+      "Everything private to your account via row-level security"
+    ],
+    "privacyTitle": "Your data",
+    "privacyBody": "Every project, task, and log belongs to your account alone — no one else using this ledger can see it.",
+    "githubLabel": "Source code",
+    "madeBy": "Built by Onixia"
+  },
   "nav": {
     "dashboard": "Today",
     "admin": "Manage",
@@ -24,15 +44,23 @@
     "switchToSignUp": "New here? Create an account",
     "switchToSignIn": "Already have an account? Sign in",
     "mascotSignup": "Sign up and let's build your ledger together!",
+    "aboutLink": "What is this site?",
     "forgotPassword": "Forgot password?",
     "sendResetLink": "Send reset link",
     "resetSent": "Check your email for a reset link.",
     "resetTitle": "Set a new password",
     "resetSubmit": "Update password",
     "resetDone": "Password updated — you can sign in now.",
+    "verifyTitle": "Enter the code we emailed you",
+    "verifySubtitle": "We sent a 6-digit code to {email}",
+    "codePlaceholder": "6-digit code",
+    "verifyButton": "Verify and continue",
+    "resendCode": "Resend code",
+    "resendSent": "Code resent",
     "error": {
       "generic": "Something went wrong. Check your details and try again.",
-      "usernameTaken": "That username is already taken."
+      "usernameTaken": "That username is already taken.",
+      "invalidCode": "That code didn't work — check it and try again."
     }
   },
   "onboarding": {

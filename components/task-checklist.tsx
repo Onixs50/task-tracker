@@ -119,7 +119,9 @@ export function TaskChecklist({
   return (
     <div className="space-y-5">
       {allDone && (
-        <div className="rounded-md border border-teal/30 bg-teal/10 px-4 py-2.5 text-sm text-teal animate-fade-up">
+        <div className="relative overflow-hidden rounded-md border border-teal/30 bg-teal/10 px-4 py-2.5 text-sm text-teal animate-fade-up">
+          <span className="pointer-events-none absolute -top-1 right-4 animate-float-slow text-base">🎉</span>
+          <span className="pointer-events-none absolute -top-1 left-10 animate-float-slow text-base" style={{ animationDelay: "0.6s" }}>✨</span>
           {t("allDone")}
         </div>
       )}

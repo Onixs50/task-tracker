@@ -14,6 +14,7 @@ export default async function AppGroupLayout({ children }: { children: ReactNode
   let username: string | null = null;
   let bannerSpeed = 3;
   let quotes: string[] = [];
+  const email = user?.email ?? null;
 
   if (user) {
     const [{ data: profile }, { data: quoteRows }] = await Promise.all([
@@ -28,7 +29,7 @@ export default async function AppGroupLayout({ children }: { children: ReactNode
   }
 
   return (
-    <AppShell timezone={timezone} displayName={username ?? displayName} quotes={quotes} bannerSpeed={bannerSpeed}>
+    <AppShell timezone={timezone} displayName={username ?? displayName} email={email} quotes={quotes} bannerSpeed={bannerSpeed}>
       <UsernameGate initialUsername={username}>{children}</UsernameGate>
     </AppShell>
   );

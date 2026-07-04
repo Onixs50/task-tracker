@@ -24,12 +24,14 @@ export function AppShell({
   children,
   timezone,
   displayName,
+  email,
   quotes,
   bannerSpeed,
 }: {
   children: ReactNode;
   timezone: string;
   displayName: string | null;
+  email: string | null;
   quotes: string[];
   bannerSpeed: number;
 }) {
@@ -69,7 +71,12 @@ export function AppShell({
           </nav>
 
           <div className="flex items-center gap-2">
-            {displayName && <span className="hidden text-xs text-muted md:inline">{displayName}</span>}
+            {displayName && (
+              <span className="hidden flex-col items-end text-xs leading-tight md:flex">
+                <span className="text-muted">{displayName}</span>
+                {email && <span className="text-[10px] text-muted/70">{email}</span>}
+              </span>
+            )}
             <LocaleSwitcher />
             <ThemeToggle />
             <SignOutButton />
