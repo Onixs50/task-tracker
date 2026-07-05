@@ -1,6 +1,7 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 
 // Six facets forming a vertical gem/crystal silhouette (top point, waist, bottom point).
 // Each facet is a simple polygon so it can be filled with its own gradient and animated independently.
@@ -47,6 +48,15 @@ export function GemDefs() {
           <feMergeNode in="SourceGraphic" />
         </feMerge>
       </filter>
+      <filter id="gemGlowImpact" x="-120%" y="-120%" width="340%" height="340%">
+        <feGaussianBlur stdDeviation="14" result="blur1" />
+        <feGaussianBlur stdDeviation="4" result="blur2" />
+        <feMerge>
+          <feMergeNode in="blur1" />
+          <feMergeNode in="blur2" />
+          <feMergeNode in="SourceGraphic" />
+        </feMerge>
+      </filter>
     </defs>
   );
 }
@@ -71,38 +81,85 @@ export function GemStatic({ size = 72 }: { size?: number }) {
  * once the whole sequence (assembly + flash) has finished.
  */
 export function GemReveal({ size = 220, onComplete }: { size?: number; onComplete?: () => void }) {
+  const [impact, setImpact] = useState(false);
+
+  // Facets fly in from further out and with a bigger spin for a punchier assembly.
   const scatter = [
-    { x: -70, y: -60, rotate: -40 },
-    { x: 80, y: -50, rotate: 35 },
-    { x: -90, y: 40, rotate: 50 },
-    { x: 90, y: 60, rotate: -45 },
-    { x: 0, y: -90, rotate: 20 },
-    { x: 0, y: 90, rotate: -20 },
+    { x: -140, y: -120, rotate: -110 },
+    { x: 160, y: -100, rotate: 95 },
+    { x: -180, y: 80, rotate: 130 },
+    { x: 180, y: 120, rotate: -125 },
+    { x: 0, y: -180, rotate: 60 },
+    { x: 0, y: 180, rotate: -60 },
   ];
 
+  function handleLastFacet() {
+    setImpact(true);
+    onComplete?.();
+  }
+
   return (
-    <div className="relative" style={{ width: size, height: size }}>
-      <svg width={size} height={size} viewBox="0 0 200 200">
+    <div className="relative flex items-center justify-center" style={{ width: size, height: size }}>
+      {/* Shockwave rings burst outward the instant the gem locks together */}
+      <AnimatePresence>
+        {impact && (
+          <>
+            {[0, 1, 2].map((ring) => (
+              <motion.div
+                key={ring}
+                className="pointer-events-none absolute rounded-full border-2 border-teal/60"
+                style={{ width: size * 0.55, height: size * 0.55 }}
+                initial={{ opacity: 0.8, scale: 0.6 }}
+                animate={{ opacity: 0, scale: 2.6 + ring * 0.5 }}
+                transition={{ duration: 0.9, delay: ring * 0.1, ease: "easeOut" }}
+              />
+            ))}
+            <motion.div
+              className="pointer-events-none absolute rounded-full"
+              style={{
+                width: size * 1.6,
+                height: size * 1.6,
+                background:
+                  "radial-gradient(circle, rgb(var(--teal) / 0.55) 0%, rgb(var(--teal) / 0.15) 70%, rgb(var(--teal) / 0) 100%)",
+              }}
+              initial={{ opacity: 0.9, scale: 0.3 }}
+              animate={{ opacity: 0, scale: 1.4 }}
+              transition={{ duration: 0.6, ease: "easeOut" }}
+            />
+          </>
+        )}
+      </AnimatePresence>
+
+      <motion.svg
+        width={size}
+        height={size}
+        viewBox="0 0 200 200"
+        className="relative"
+        animate={impact ? { scale: [1, 1.16, 0.96, 1.03, 1] } : {}}
+        transition={{ duration: 0.55, ease: [0.34, 1.56, 0.64, 1] }}
+      >
         <GemDefs />
-        <g filter="url(#gemGlow)">
+        <g filter={impact ? "url(#gemGlowImpact)" : "url(#gemGlow)"}>
           {GEM_FACETS.map((f, i) => (
             <motion.polygon
               key={i}
               points={f.points}
               fill={`url(#${f.grad})`}
-              initial={{ opacity: 0, scale: 0.4, x: scatter[i].x, y: scatter[i].y, rotate: scatter[i].rotate }}
-              animate={{ opacity: 0.95, scale: 1, x: 0, y: 0, rotate: 0 }}
-              transition={{ delay: i * 0.09, duration: 0.65, ease: [0.16, 1, 0.3, 1] }}
-              onAnimationComplete={i === GEM_FACETS.length - 1 ? onComplete : undefined}
+              initial={{ opacity: 0, scale: 0.3, x: scatter[i].x, y: scatter[i].y, rotate: scatter[i].rotate }}
+              animate={{ opacity: 0.97, scale: 1, x: 0, y: 0, rotate: 0 }}
+              transition={{ delay: i * 0.1, duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
+              onAnimationComplete={i === GEM_FACETS.length - 1 ? handleLastFacet : undefined}
             />
           ))}
         </g>
-      </svg>
+      </motion.svg>
+
+      {/* Full-screen white flash at the moment of impact */}
       <motion.div
-        className="pointer-events-none absolute inset-0 rounded-full bg-white"
+        className="pointer-events-none fixed inset-0 bg-white"
         initial={{ opacity: 0 }}
-        animate={{ opacity: [0, 0, 0.9, 0] }}
-        transition={{ duration: 1.1, times: [0, 0.72, 0.8, 1], delay: 0 }}
+        animate={impact ? { opacity: [0, 0.95, 0] } : { opacity: 0 }}
+        transition={{ duration: 0.5, times: [0, 0.25, 1], ease: "easeOut" }}
       />
     </div>
   );

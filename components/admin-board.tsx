@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
-import { Plus, Trash2, Pencil, X, Copy, Archive, ArchiveRestore, Search } from "lucide-react";
+import { Plus, Trash2, Pencil, X, Copy, Archive, ArchiveRestore, Search, ExternalLink } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { TASK_CATEGORIES, EMOJI_PICKS } from "@/lib/task-categories";
 import type { Database, RecurrenceType, Priority, TaskCategory } from "@/lib/supabase/types";
@@ -19,9 +19,18 @@ function todayISO() {
   return new Date().toISOString().slice(0, 10);
 }
 
+/** Ensures a link the user typed (e.g. "google.com") has a protocol so it opens correctly. */
+function normalizeUrl(raw: string) {
+  const value = raw.trim();
+  if (!value) return "";
+  if (/^https?:\/\//i.test(value)) return value;
+  return `https://${value}`;
+}
+
 const emptyForm = () => ({
   title: "",
   description: "",
+  link_url: "",
   category: "custom" as TaskCategory,
   emoji: "✅",
   recurrence_type: "daily" as RecurrenceType,
@@ -108,6 +117,7 @@ export function AdminBoard({
       project_id: activeProjectId,
       title: form.title.trim(),
       description: form.description.trim() || null,
+      link_url: normalizeUrl(form.link_url) || null,
       category: form.category,
       emoji: form.emoji,
       recurrence_type: form.recurrence_type,
@@ -171,6 +181,7 @@ export function AdminBoard({
     setForm({
       title: tpl.title,
       description: tpl.description ?? "",
+      link_url: tpl.link_url ?? "",
       category: tpl.category,
       emoji: tpl.emoji,
       recurrence_type: tpl.recurrence_type,
@@ -353,6 +364,18 @@ export function AdminBoard({
                 />
 
                 <div>
+                  <label className="mb-1 block text-xs text-muted">{t("taskLink")}</label>
+                  <input
+                    type="text"
+                    dir="ltr"
+                    value={form.link_url}
+                    onChange={(e) => setForm({ ...form, link_url: e.target.value })}
+                    placeholder={t("taskLinkPlaceholder")}
+                    className="w-full rounded-sm border border-border bg-bg px-2.5 py-2 text-sm outline-none focus:border-gold/60"
+                  />
+                </div>
+
+                <div>
                   <label className="mb-1 block text-xs text-muted">{t("category")}</label>
                   <div className="flex flex-wrap gap-1.5">
                     {TASK_CATEGORIES.map((c) => (
@@ -511,6 +534,17 @@ export function AdminBoard({
                     </div>
                   </div>
                   <div className="flex shrink-0 gap-2 text-muted">
+                    {tpl.link_url && (
+                      <a
+                        href={tpl.link_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-muted hover:text-teal"
+                        title={tpl.link_url}
+                      >
+                        <ExternalLink size={14} />
+                      </a>
+                    )}
                     <Copy size={14} className="cursor-pointer hover:text-gold" onClick={() => duplicateTask(tpl)} />
                     {tpl.archived ? (
                       <ArchiveRestore size={14} className="cursor-pointer hover:text-teal" onClick={() => toggleArchive(tpl)} />

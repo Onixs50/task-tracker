@@ -116,6 +116,8 @@
     "editTask": "ویرایش تسک",
     "taskTitle": "عنوان تسک",
     "taskDescription": "توضیحات (اختیاری)",
+  "taskLink": "لینک (اختیاری)",
+  "taskLinkPlaceholder": "https://example.com",
     "category": "دسته",
     "emoji": "آیکون",
     "recurrenceType": "تکرار",

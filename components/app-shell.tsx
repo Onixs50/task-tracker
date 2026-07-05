@@ -8,7 +8,6 @@ import { MiniClock } from "./mini-clock";
 import { ThemeToggle } from "./theme-toggle";
 import { LocaleSwitcher } from "./locale-switcher";
 import { SignOutButton } from "./sign-out-button";
-import { EntryTransition } from "./entry-transition";
 import { Footer } from "./footer";
 import type { ReactNode } from "react";
 
@@ -41,7 +40,6 @@ export function AppShell({
 
   return (
     <div className="min-h-screen bg-bg">
-      <EntryTransition />
       <TickerBanner timezone={timezone} quotes={quotes} bannerSpeed={bannerSpeed} />
 
       <header className="sticky top-0 z-30 border-b border-border bg-bg/90 backdrop-blur">

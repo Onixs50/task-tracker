@@ -116,6 +116,8 @@
     "editTask": "Edit task",
     "taskTitle": "Task title",
     "taskDescription": "Description (optional)",
+  "taskLink": "Link (optional)",
+  "taskLinkPlaceholder": "https://example.com",
     "category": "Category",
     "emoji": "Icon",
     "recurrenceType": "Repeats",

@@ -87,6 +87,15 @@ const config: Config = {
           "70%": { opacity: "1" },
           "100%": { transform: "translate(var(--vx, 0), var(--vy, 0)) scale(0.1) rotate(400deg)", opacity: "0" },
         },
+        "impact-shake": {
+          "0%": { transform: "translate(0, 0)" },
+          "12%": { transform: "translate(-3px, 2px)" },
+          "24%": { transform: "translate(3px, -2px)" },
+          "36%": { transform: "translate(-2px, -2px)" },
+          "48%": { transform: "translate(2px, 2px)" },
+          "60%": { transform: "translate(-1px, 1px)" },
+          "100%": { transform: "translate(0, 0)" },
+        },
       },
       animation: {
         ticker: "ticker 38s linear infinite",
@@ -103,6 +112,7 @@ const config: Config = {
         "page-fade-in": "page-fade-in 0.5s ease-out",
         "logo-pulse": "logo-pulse 2.6s ease-in-out infinite",
         "vortex-in": "vortex-in 0.7s cubic-bezier(0.6,0,0.9,0.4) forwards",
+        "impact-shake": "impact-shake 0.4s cubic-bezier(.36,.07,.19,.97) both",
       },
     },
   },

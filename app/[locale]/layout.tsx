@@ -5,6 +5,7 @@ import { Space_Grotesk, Inter, JetBrains_Mono, Vazirmatn } from "next/font/googl
 import { notFound } from "next/navigation";
 import { locales } from "@/lib/i18n/request";
 import { ThemeProvider } from "@/components/theme-provider";
+import { CrystalIntro } from "@/components/crystal-intro";
 import "@/styles/globals.css";
 
 const display = Space_Grotesk({ subsets: ["latin"], variable: "--font-display" });
@@ -35,7 +36,10 @@ export default async function LocaleLayout({
         className={`${display.variable} ${body.variable} ${mono.variable} ${fa.variable} font-body antialiased`}
       >
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
-          <NextIntlClientProvider messages={messages}>{children}</NextIntlClientProvider>
+          <NextIntlClientProvider messages={messages}>
+            <CrystalIntro />
+            {children}
+          </NextIntlClientProvider>
         </ThemeProvider>
       </body>
     </html>

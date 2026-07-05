@@ -63,6 +63,7 @@ export interface Database {
           project_id: string;
           title: string;
           description: string | null;
+          link_url: string | null;
           recurrence_type: RecurrenceType;
           recurrence_days: number[] | null;
           custom_dates: string[] | null;

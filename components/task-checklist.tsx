@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
-import { Check, Undo2 } from "lucide-react";
+import { Check, Undo2, ExternalLink } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import type { Database } from "@/lib/supabase/types";
 
@@ -152,6 +152,18 @@ export function TaskChecklist({
                         <div className="flex items-center gap-1.5">
                           <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${PRIORITY_DOT[tpl.priority]}`} />
                           <p className="truncate text-sm text-ink">{tpl.title}</p>
+                          {tpl.link_url && (
+                            <a
+                              href={tpl.link_url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              onClick={(e) => e.stopPropagation()}
+                              title={tpl.link_url}
+                              className="shrink-0 text-muted transition hover:text-teal"
+                            >
+                              <ExternalLink size={13} />
+                            </a>
+                          )}
                         </div>
                         <p className="truncate text-xs text-muted">{tCategory(tpl.category)}</p>
                       </div>
