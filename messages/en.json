@@ -83,10 +83,6 @@
     "doneToday": "Closed out today",
     "doneAt": "Closed at {time}"
   },
-  "clock": {
-    "analog": "Analog",
-    "digital": "Digital"
-  },
   "priority": { "low": "Low", "medium": "Medium", "high": "High" },
   "category": {
     "transaction": "On-chain transaction",

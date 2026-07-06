@@ -4,7 +4,6 @@ import { useTranslations } from "next-intl";
 import { Link, usePathname } from "@/lib/i18n/navigation";
 import { LayoutGrid, ClipboardList, BarChart3, Settings, Gift } from "lucide-react";
 import { TickerBanner } from "./ticker-banner";
-import { MiniClock } from "./mini-clock";
 import { ThemeToggle } from "./theme-toggle";
 import { LocaleSwitcher } from "./locale-switcher";
 import { SignOutButton } from "./sign-out-button";
@@ -39,7 +38,7 @@ export function AppShell({
   const pathname = usePathname();
 
   return (
-    <div className="min-h-screen bg-bg">
+    <div className="flex min-h-screen flex-col bg-bg">
       <TickerBanner timezone={timezone} quotes={quotes} bannerSpeed={bannerSpeed} />
 
       <header className="sticky top-0 z-30 border-b border-border bg-bg/90 backdrop-blur">
@@ -82,12 +81,10 @@ export function AppShell({
         </div>
       </header>
 
-      <main className="mx-auto max-w-6xl px-4 pb-24 pt-6 sm:pb-10">
-        {children}
+      <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col px-4 pb-24 pt-6 sm:pb-10">
+        <div className="flex-1">{children}</div>
         <Footer />
       </main>
-
-      <MiniClock timezone={timezone} />
 
       <nav className="fixed inset-x-0 bottom-0 z-30 flex justify-around border-t border-border bg-surface py-2 sm:hidden">
         {NAV.map((item) => {

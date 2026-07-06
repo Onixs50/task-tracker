@@ -6,7 +6,6 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Mascot } from "@/components/mascot";
 import { LoginDecor } from "@/components/login-decor";
-import { Preloader } from "@/components/preloader";
 import { GemStatic } from "@/components/gem";
 import { LocaleSwitcher } from "@/components/locale-switcher";
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -19,7 +18,6 @@ export default function LoginPage({ params: { locale } }: { params: { locale: st
   const tApp = useTranslations("app");
   const router = useRouter();
 
-  const [showPreloader, setShowPreloader] = useState(true);
   const [mode, setMode] = useState<Mode>("signIn");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -124,12 +122,7 @@ export default function LoginPage({ params: { locale } }: { params: { locale: st
 
   return (
     <>
-      {showPreloader && <Preloader onDone={() => setShowPreloader(false)} />}
-      <div
-        className={`relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-bg px-6 pb-16 ${
-          showPreloader ? "opacity-0" : "animate-page-fade-in"
-        }`}
-      >
+      <div className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-bg px-6 pb-16 animate-page-fade-in">
         <LoginDecor />
 
         <div className="absolute top-4 flex w-full max-w-sm items-center justify-between px-1">

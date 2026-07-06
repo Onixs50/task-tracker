@@ -8,7 +8,7 @@ export function Footer() {
   const t = useTranslations("footer");
 
   return (
-    <footer className="mt-10 flex items-center justify-between border-t border-border pt-4 text-xs text-muted">
+    <footer className="mt-16 flex items-center justify-between border-t border-border pt-4 text-xs text-muted">
       <span>{t("builtBy")}</span>
       {TWITTER_URL && (
         <a href={TWITTER_URL} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 hover:text-gold">

@@ -83,10 +83,6 @@
     "doneToday": "امروز انجام شد",
     "doneAt": "ساعت {time} انجام شد"
   },
-  "clock": {
-    "analog": "آنالوگ",
-    "digital": "دیجیتال"
-  },
   "priority": { "low": "کم", "medium": "متوسط", "high": "زیاد" },
   "category": {
     "transaction": "تراکنش آنچین",

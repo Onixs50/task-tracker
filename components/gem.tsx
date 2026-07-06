@@ -61,7 +61,7 @@ export function GemDefs() {
   );
 }
 
-/** Small pulsing static gem — used in the preloader and as a compact brand mark. */
+/** Small pulsing static gem — used as a compact brand mark. */
 export function GemStatic({ size = 72 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 200 200" className="animate-logo-pulse">
