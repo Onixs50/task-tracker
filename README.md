@@ -55,7 +55,6 @@ Anyone who wants a simple, no-fuss assistant to keep track of recurring daily wo
 
 <div align="center">
 
-Made with care · **ساخته‌شده با دقت**
 Built by Onixia
 
 </div>
