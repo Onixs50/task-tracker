@@ -5,6 +5,7 @@ import { isDueOn } from "@/lib/recurrence";
 import { computeStreak } from "@/lib/stats";
 import { TaskChecklist } from "@/components/task-checklist";
 import { Mascot } from "@/components/mascot";
+import { AnnouncementBanner } from "@/components/announcement-banner";
 import { TaskReminder } from "@/components/task-reminder";
 
 export default async function DashboardPage() {
@@ -19,12 +20,20 @@ export default async function DashboardPage() {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("timezone, username, display_name, created_at")
+    .select("timezone, username, display_name, created_at, announcement_views")
     .eq("id", user.id)
     .single();
   const timezone = profile?.timezone ?? "UTC";
   const name = profile?.username ?? profile?.display_name ?? "";
   const todayISO = isoDateInTZ(timezone);
+
+  const { data: announcement } = await supabase
+    .from("announcements")
+    .select("id, title, message")
+    .eq("active", true)
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
 
   const isNew =
     profile?.created_at && new Date(profile.created_at).getTime() > Date.now() - 1000 * 60 * 60 * 24;
@@ -55,6 +64,7 @@ export default async function DashboardPage() {
   return (
     <div className="space-y-6">
       <TaskReminder remaining={remaining} timezone={timezone} />
+      <AnnouncementBanner announcement={announcement ?? null} initialViews={profile?.announcement_views ?? {}} />
       {name && (
         <Mascot
           size="sm"

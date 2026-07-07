@@ -27,6 +27,7 @@
     "stats": "Stats",
     "airdrops": "Airdrops",
     "settings": "Settings",
+    "siteAdmin": "Site Admin",
     "signOut": "Sign out"
   },
   "auth": {
@@ -132,6 +133,8 @@
     "search": "Search tasks…",
     "filterAll": "All",
     "showArchived": "Show archived",
+    "selectToShare": "Select to share",
+    "shareSelected": "Share ({count})",
     "noProjects": "No projects yet — create one to start adding tasks.",
     "noTasks": "No tasks match here yet.",
     "confirmDelete": "Delete this? This can't be undone.",
@@ -189,6 +192,13 @@
     "showQuotes": "Show motivational quotes in the banner",
     "data": "Data",
     "exportCsv": "Export history as CSV",
+    "backupHint": "Get a full copy of everything (projects, tasks, history, airdrops, banner quotes), or restore from a previous file.",
+    "exportBackup": "Download full backup",
+    "backingUp": "Preparing…",
+    "importBackup": "Upload backup",
+    "restoring": "Restoring…",
+    "restoreSuccess": "Restored successfully.",
+    "restoreError": "Restore failed — the file isn't valid.",
     "dangerZone": "Danger zone",
     "deleteAllData": "Delete all my data",
     "deleteAllDataHint": "Removes every project, task, log, and airdrop. Your account stays — this can't be undone.",
@@ -201,5 +211,46 @@
     "cancel": "Cancel",
     "confirm": "Confirm",
     "none": "—"
+  },
+  "siteAdmin": {
+    "title": "Site Admin",
+    "subtitle": "Manage the announcement banner shown to every user on their dashboard.",
+    "noAccess": "This section is only available to the site's main admin.",
+    "previewHint": "This is how it'll look to users.",
+    "announcements": "Announcements",
+    "newAnnouncement": "New announcement",
+    "editAnnouncement": "Edit announcement",
+    "announcementTitle": "Title (optional)",
+    "announcementMessage": "Announcement text",
+    "save": "Save",
+    "confirmDelete": "Delete this? It can't be undone.",
+    "toggleActive": "Toggle active",
+    "noAnnouncements": "No announcements yet."
+  },
+  "announcements": {
+    "dismiss": "Dismiss"
+  },
+  "share": {
+    "title": "Share tasks",
+    "subtitle": "{count, plural, =1 {One task} other {# tasks}} ready to send.",
+    "creatingLink": "Creating link…",
+    "mustBeSignedIn": "You need to be signed in to share.",
+    "linkError": "Couldn't create the link — try again.",
+    "shareVia": "Share",
+    "gmail": "Gmail",
+    "telegram": "Telegram",
+    "twitter": "Twitter",
+    "shareTitle": "I sent you some tasks from Daily Ledger",
+    "shareText": "I shared some tasks with you — use this link to add them to your own list:",
+    "notFound": "This share link wasn't found or has expired.",
+    "sharedIntro": "{count, plural, =1 {One task was} other {# tasks were}} shared with you — add them to your list?",
+    "addToProject": "Add to project",
+    "newProjectOption": "+ Create new project",
+    "sharedProjectName": "Shared with me",
+    "importSuccess": "Added to your list successfully.",
+    "importing": "Adding…",
+    "importError": "Couldn't add these — try again.",
+    "addToMyList": "Add to my list",
+    "signInToAdd": "Sign in to add these tasks"
   }
 }

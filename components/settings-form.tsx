@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
@@ -35,6 +35,10 @@ export function SettingsForm({ profile }: { profile: Profile | null }) {
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [exporting, setExporting] = useState(false);
+  const [backingUp, setBackingUp] = useState(false);
+  const [restoring, setRestoring] = useState(false);
+  const [restoreMessage, setRestoreMessage] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const supabase = createClient();
@@ -90,6 +94,115 @@ export function SettingsForm({ profile }: { profile: Profile | null }) {
     a.click();
     URL.revokeObjectURL(url);
     setExporting(false);
+  }
+
+  async function exportBackup() {
+    setBackingUp(true);
+    const supabase = createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) {
+      setBackingUp(false);
+      return;
+    }
+    const [{ data: projects }, { data: templates }, { data: logs }, { data: airdrops }, { data: quotes }] =
+      await Promise.all([
+        supabase.from("projects").select("*"),
+        supabase.from("task_templates").select("*"),
+        supabase.from("task_logs").select("*"),
+        supabase.from("airdrops").select("*"),
+        supabase.from("quotes").select("*"),
+      ]);
+
+    const backup = {
+      version: 1,
+      exportedAt: new Date().toISOString(),
+      data: {
+        projects: projects ?? [],
+        task_templates: templates ?? [],
+        task_logs: logs ?? [],
+        airdrops: airdrops ?? [],
+        quotes: quotes ?? [],
+      },
+    };
+
+    const blob = new Blob([JSON.stringify(backup, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `daily-ledger-backup-${new Date().toISOString().slice(0, 10)}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    setBackingUp(false);
+  }
+
+  async function importBackup(file: File) {
+    setRestoring(true);
+    setRestoreMessage(null);
+    try {
+      const text = await file.text();
+      const parsed = JSON.parse(text);
+      const payload = parsed?.data ?? parsed;
+      const supabase = createClient();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!user) throw new Error("no-user");
+
+      // projects first, so we can remap old ids -> freshly inserted ids
+      const projectIdMap = new Map<string, string>();
+      for (const p of payload.projects ?? []) {
+        const { id, user_id, created_at, ...rest } = p;
+        const { data, error: insertError } = await supabase
+          .from("projects")
+          .insert({ ...rest, user_id: user.id })
+          .select("id")
+          .single();
+        if (!insertError && data) projectIdMap.set(id, data.id);
+      }
+
+      const templateIdMap = new Map<string, string>();
+      for (const tpl of payload.task_templates ?? []) {
+        const { id, user_id, project_id, created_at, ...rest } = tpl;
+        const newProjectId = projectIdMap.get(project_id);
+        if (!newProjectId) continue;
+        const { data, error: insertError } = await supabase
+          .from("task_templates")
+          .insert({ ...rest, user_id: user.id, project_id: newProjectId })
+          .select("id")
+          .single();
+        if (!insertError && data) templateIdMap.set(id, data.id);
+      }
+
+      for (const log of payload.task_logs ?? []) {
+        const { id, user_id, task_template_id, ...rest } = log;
+        const newTemplateId = templateIdMap.get(task_template_id);
+        if (!newTemplateId) continue;
+        await supabase.from("task_logs").upsert(
+          { ...rest, user_id: user.id, task_template_id: newTemplateId },
+          { onConflict: "task_template_id,log_date" }
+        );
+      }
+
+      for (const drop of payload.airdrops ?? []) {
+        const { id, user_id, created_at, ...rest } = drop;
+        await supabase.from("airdrops").insert({ ...rest, user_id: user.id });
+      }
+
+      for (const q of payload.quotes ?? []) {
+        const { id, user_id, created_at, ...rest } = q;
+        await supabase.from("quotes").insert({ ...rest, user_id: user.id });
+      }
+
+      setRestoreMessage(t("restoreSuccess"));
+      router.refresh();
+    } catch {
+      setRestoreMessage(t("restoreError"));
+    } finally {
+      setRestoring(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
   }
 
   async function deleteAllData() {
@@ -215,6 +328,37 @@ export function SettingsForm({ profile }: { profile: Profile | null }) {
         >
           {t("exportCsv")}
         </button>
+
+        <div className="border-t border-border pt-3">
+          <p className="mb-2 text-xs text-muted">{t("backupHint")}</p>
+          <div className="grid grid-cols-2 gap-2">
+            <button
+              onClick={exportBackup}
+              disabled={backingUp}
+              className="w-full rounded-sm border border-teal/40 bg-teal/10 py-2 text-sm text-teal hover:bg-teal/20 disabled:opacity-50"
+            >
+              {backingUp ? t("backingUp") : t("exportBackup")}
+            </button>
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              disabled={restoring}
+              className="w-full rounded-sm border border-gold/40 bg-gold/10 py-2 text-sm text-gold hover:bg-gold/20 disabled:opacity-50"
+            >
+              {restoring ? t("restoring") : t("importBackup")}
+            </button>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="application/json"
+              className="hidden"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) importBackup(file);
+              }}
+            />
+          </div>
+          {restoreMessage && <p className="mt-2 text-xs text-teal">{restoreMessage}</p>}
+        </div>
       </section>
 
       <section className="space-y-2 rounded-lg border border-danger/30 bg-danger/5 p-5">

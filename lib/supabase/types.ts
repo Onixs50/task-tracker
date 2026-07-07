@@ -26,6 +26,7 @@ export interface Database {
           show_quotes: boolean;
           clock_size: string;
           banner_speed: number;
+          announcement_views: Record<string, number>;
           created_at: string;
         };
         Insert: Partial<Database["public"]["Tables"]["profiles"]["Row"]> & { id: string };
@@ -118,6 +119,44 @@ export interface Database {
         };
         Update: Partial<Database["public"]["Tables"]["airdrops"]["Row"]>;
       };
+      announcements: {
+        Row: {
+          id: string;
+          title: string | null;
+          message: string;
+          active: boolean;
+          created_by: string | null;
+          created_at: string;
+        };
+        Insert: Partial<Database["public"]["Tables"]["announcements"]["Row"]> & { message: string };
+        Update: Partial<Database["public"]["Tables"]["announcements"]["Row"]>;
+      };
+      shared_bundles: {
+        Row: {
+          id: string;
+          created_by: string;
+          payload: SharedTaskPayload[];
+          created_at: string;
+        };
+        Insert: Partial<Database["public"]["Tables"]["shared_bundles"]["Row"]> & {
+          created_by: string;
+          payload: SharedTaskPayload[];
+        };
+        Update: Partial<Database["public"]["Tables"]["shared_bundles"]["Row"]>;
+      };
     };
   };
+}
+
+/** Shape of a single task copied into a shared_bundles.payload array. */
+export interface SharedTaskPayload {
+  title: string;
+  description: string | null;
+  link_url: string | null;
+  category: TaskCategory;
+  emoji: string;
+  recurrence_type: RecurrenceType;
+  recurrence_days: number[] | null;
+  custom_dates: string[] | null;
+  priority: Priority;
 }

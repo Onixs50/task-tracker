@@ -11,5 +11,6 @@ export const { Link, redirect, usePathname, useRouter } =
       "/airdrops": "/airdrops",
       "/settings": "/settings",
       "/login": "/login",
+      "/site-admin": "/site-admin",
     },
   });

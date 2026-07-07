@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Mascot } from "@/components/mascot";
 import { LoginDecor } from "@/components/login-decor";
@@ -17,6 +17,12 @@ export default function LoginPage({ params: { locale } }: { params: { locale: st
   const t = useTranslations("auth");
   const tApp = useTranslations("app");
   const router = useRouter();
+  const searchParams = useSearchParams();
+
+  function destination() {
+    const next = searchParams.get("next");
+    return next && next.startsWith("/") ? next : `/${locale}`;
+  }
 
   const [mode, setMode] = useState<Mode>("signIn");
   const [email, setEmail] = useState("");
@@ -29,9 +35,13 @@ export default function LoginPage({ params: { locale } }: { params: { locale: st
 
   async function signInWithGoogle() {
     const supabase = createClient();
+    const next = searchParams.get("next");
+    const redirectTo = `${window.location.origin}/auth/callback?locale=${locale}${
+      next ? `&next=${encodeURIComponent(next)}` : ""
+    }`;
     await supabase.auth.signInWithOAuth({
       provider: "google",
-      options: { redirectTo: `${window.location.origin}/auth/callback?locale=${locale}` },
+      options: { redirectTo },
     });
   }
 
@@ -53,7 +63,7 @@ export default function LoginPage({ params: { locale } }: { params: { locale: st
       setError(t("error.invalidCode"));
       return;
     }
-    router.push(`/${locale}`);
+    router.push(destination());
     router.refresh();
   }
 
@@ -106,7 +116,7 @@ export default function LoginPage({ params: { locale } }: { params: { locale: st
         setMode("verify");
         return;
       }
-      router.push(`/${locale}`);
+      router.push(destination());
       router.refresh();
     } else {
       const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
@@ -115,7 +125,7 @@ export default function LoginPage({ params: { locale } }: { params: { locale: st
         setError(t("error.generic"));
         return;
       }
-      router.push(`/${locale}`);
+      router.push(destination());
       router.refresh();
     }
   }

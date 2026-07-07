@@ -2,7 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import { Link, usePathname } from "@/lib/i18n/navigation";
-import { LayoutGrid, ClipboardList, BarChart3, Settings, Gift } from "lucide-react";
+import { LayoutGrid, ClipboardList, BarChart3, Settings, Gift, Megaphone } from "lucide-react";
 import { TickerBanner } from "./ticker-banner";
 import { ThemeToggle } from "./theme-toggle";
 import { LocaleSwitcher } from "./locale-switcher";
@@ -25,6 +25,7 @@ export function AppShell({
   email,
   quotes,
   bannerSpeed,
+  isSuperAdmin,
 }: {
   children: ReactNode;
   timezone: string;
@@ -32,10 +33,16 @@ export function AppShell({
   email: string | null;
   quotes: string[];
   bannerSpeed: number;
+  isSuperAdmin?: boolean;
 }) {
   const t = useTranslations("nav");
   const tApp = useTranslations("app");
   const pathname = usePathname();
+
+  const nav = [
+    ...NAV,
+    ...(isSuperAdmin ? [{ href: "/site-admin", key: "siteAdmin", icon: Megaphone } as const] : []),
+  ];
 
   return (
     <div className="flex min-h-screen flex-col bg-bg">
@@ -49,7 +56,7 @@ export function AppShell({
           </div>
 
           <nav className="hidden gap-1 sm:flex">
-            {NAV.map((item) => {
+            {nav.map((item) => {
               const active = pathname === item.href;
               const Icon = item.icon;
               return (
@@ -87,7 +94,7 @@ export function AppShell({
       </main>
 
       <nav className="fixed inset-x-0 bottom-0 z-30 flex justify-around border-t border-border bg-surface py-2 sm:hidden">
-        {NAV.map((item) => {
+        {nav.map((item) => {
           const active = pathname === item.href;
           const Icon = item.icon;
           return (

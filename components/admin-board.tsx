@@ -2,10 +2,11 @@
 
 import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
-import { Plus, Trash2, Pencil, X, Copy, Archive, ArchiveRestore, Search, ExternalLink } from "lucide-react";
+import { Plus, Trash2, Pencil, X, Copy, Archive, ArchiveRestore, Search, ExternalLink, Share2, CheckSquare, Square } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { TASK_CATEGORIES, EMOJI_PICKS } from "@/lib/task-categories";
-import type { Database, RecurrenceType, Priority, TaskCategory } from "@/lib/supabase/types";
+import { ShareModal } from "@/components/share-modal";
+import type { Database, RecurrenceType, Priority, TaskCategory, SharedTaskPayload } from "@/lib/supabase/types";
 
 type Project = Database["public"]["Tables"]["projects"]["Row"];
 type TaskTemplate = Database["public"]["Tables"]["task_templates"]["Row"];
@@ -44,9 +45,11 @@ const emptyForm = () => ({
 export function AdminBoard({
   initialProjects,
   initialTemplates,
+  locale,
 }: {
   initialProjects: Project[];
   initialTemplates: TaskTemplate[];
+  locale: string;
 }) {
   const t = useTranslations("admin");
   const tRec = useTranslations("recurrence");
@@ -69,6 +72,43 @@ export function AdminBoard({
   const [search, setSearch] = useState("");
   const [priorityFilter, setPriorityFilter] = useState<Priority | "all">("all");
   const [showArchived, setShowArchived] = useState(false);
+
+  const [selectMode, setSelectMode] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [shareTasks, setShareTasks] = useState<SharedTaskPayload[] | null>(null);
+
+  function toSharedPayload(tpl: TaskTemplate): SharedTaskPayload {
+    return {
+      title: tpl.title,
+      description: tpl.description,
+      link_url: tpl.link_url,
+      category: tpl.category,
+      emoji: tpl.emoji,
+      recurrence_type: tpl.recurrence_type,
+      recurrence_days: tpl.recurrence_days,
+      custom_dates: tpl.custom_dates,
+      priority: tpl.priority,
+    };
+  }
+
+  function toggleSelected(id: string) {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }
+
+  function shareSingle(tpl: TaskTemplate) {
+    setShareTasks([toSharedPayload(tpl)]);
+  }
+
+  function shareSelected() {
+    const chosen = templates.filter((tpl) => selectedIds.has(tpl.id));
+    if (chosen.length === 0) return;
+    setShareTasks(chosen.map(toSharedPayload));
+  }
 
   function resetTaskForm() {
     setForm(emptyForm());
@@ -316,6 +356,26 @@ export function AdminBoard({
               >
                 {t("showArchived")}
               </button>
+              <button
+                onClick={() => {
+                  setSelectMode((v) => !v);
+                  setSelectedIds(new Set());
+                }}
+                className={`flex items-center gap-1 rounded-md border px-2.5 py-1.5 text-xs transition ${
+                  selectMode ? "border-teal/50 bg-teal/15 text-teal" : "border-border text-muted"
+                }`}
+              >
+                {selectMode ? <CheckSquare size={13} /> : <Square size={13} />}
+                {t("selectToShare")}
+              </button>
+              {selectMode && selectedIds.size > 0 && (
+                <button
+                  onClick={shareSelected}
+                  className="flex items-center gap-1 rounded-md border border-gold/50 bg-gold/15 px-2.5 py-1.5 text-xs text-gold hover:bg-gold/25"
+                >
+                  <Share2 size={13} /> {t("shareSelected", { count: selectedIds.size })}
+                </button>
+              )}
             </div>
 
             {showTaskForm && (
@@ -525,6 +585,15 @@ export function AdminBoard({
               {visibleTasks.map((tpl) => (
                 <li key={tpl.id} className={`flex items-center justify-between gap-3 px-4 py-3 ${tpl.archived ? "opacity-50" : ""}`}>
                   <div className="flex min-w-0 items-center gap-2.5">
+                    {selectMode && (
+                      <button onClick={() => toggleSelected(tpl.id)} className="shrink-0 text-muted hover:text-teal">
+                        {selectedIds.has(tpl.id) ? (
+                          <CheckSquare size={15} className="text-teal" />
+                        ) : (
+                          <Square size={15} />
+                        )}
+                      </button>
+                    )}
                     <span className="text-lg leading-none">{tpl.emoji}</span>
                     <div className="min-w-0">
                       <p className="truncate text-sm">{tpl.title}</p>
@@ -545,6 +614,7 @@ export function AdminBoard({
                         <ExternalLink size={14} />
                       </a>
                     )}
+                    <Share2 size={14} className="cursor-pointer hover:text-gold" onClick={() => shareSingle(tpl)} />
                     <Copy size={14} className="cursor-pointer hover:text-gold" onClick={() => duplicateTask(tpl)} />
                     {tpl.archived ? (
                       <ArchiveRestore size={14} className="cursor-pointer hover:text-teal" onClick={() => toggleArchive(tpl)} />
@@ -565,6 +635,10 @@ export function AdminBoard({
           <p className="text-sm text-muted">{t("noProjects")}</p>
         )}
       </div>
+
+      {shareTasks && (
+        <ShareModal tasks={shareTasks} locale={locale} onClose={() => setShareTasks(null)} />
+      )}
     </div>
   );
 }
