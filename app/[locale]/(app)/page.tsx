@@ -29,7 +29,7 @@ export default async function DashboardPage() {
 
   const { data: announcement } = await supabase
     .from("announcements")
-    .select("id, title, message")
+    .select("id, title, message, max_views, accent, show_mascot")
     .eq("active", true)
     .order("created_at", { ascending: false })
     .limit(1)

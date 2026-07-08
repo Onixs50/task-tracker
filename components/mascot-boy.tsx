@@ -12,8 +12,8 @@ export function MascotBoy({
   const dims = { sm: 64, md: 88, lg: 120 }[size];
 
   return (
-    <div className="flex items-end gap-3">
-      <div className="animate-mascot-bob" style={{ width: dims, height: dims }}>
+    <div className="flex w-full items-start gap-3">
+      <div className="shrink-0 animate-mascot-bob" style={{ width: dims, height: dims }}>
         <svg viewBox="0 0 120 120" width={dims} height={dims}>
           {/* ears */}
           <circle cx="26" cy="60" r="6" fill="#FFDCC4" />
@@ -67,9 +67,7 @@ export function MascotBoy({
       </div>
 
       {message && (
-        <div className="relative mb-3 max-w-[240px] animate-fade-up rounded-2xl rounded-bl-sm border border-border bg-surface px-3.5 py-2.5 text-sm text-ink shadow-sm">
-          {message}
-        </div>
+        <div className="min-w-0 flex-1 animate-fade-up pt-1 text-sm leading-relaxed text-ink">{message}</div>
       )}
     </div>
   );

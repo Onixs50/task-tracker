@@ -15,6 +15,12 @@ export function isoDateInTZ(timezone: string, date: Date = new Date()): string {
   return `${y}-${m}-${d}`;
 }
 
+/** 0-23, computed in the given timezone. */
+export function hourInTZ(timezone: string, date: Date = new Date()): number {
+  const hour = new Intl.DateTimeFormat("en-US", { timeZone: timezone, hour: "2-digit", hour12: false }).format(date);
+  return parseInt(hour, 10) % 24;
+}
+
 /** 0 = Sunday .. 6 = Saturday, computed in the given timezone. */
 export function weekdayInTZ(timezone: string, date: Date = new Date()): number {
   const weekday = new Intl.DateTimeFormat("en-US", { timeZone: timezone, weekday: "short" }).format(date);

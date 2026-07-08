@@ -27,6 +27,10 @@ export interface Database {
           clock_size: string;
           banner_speed: number;
           announcement_views: Record<string, number>;
+          telegram_chat_id: string | null;
+          telegram_username: string | null;
+          telegram_link_code: string | null;
+          telegram_reminders_enabled: boolean;
           created_at: string;
         };
         Insert: Partial<Database["public"]["Tables"]["profiles"]["Row"]> & { id: string };
@@ -125,11 +129,25 @@ export interface Database {
           title: string | null;
           message: string;
           active: boolean;
+          max_views: number;
+          accent: "gold" | "teal" | "danger";
+          show_mascot: boolean;
           created_by: string | null;
           created_at: string;
         };
         Insert: Partial<Database["public"]["Tables"]["announcements"]["Row"]> & { message: string };
         Update: Partial<Database["public"]["Tables"]["announcements"]["Row"]>;
+      };
+      telegram_broadcasts: {
+        Row: {
+          id: string;
+          message: string;
+          sent_by: string | null;
+          recipient_count: number;
+          created_at: string;
+        };
+        Insert: Partial<Database["public"]["Tables"]["telegram_broadcasts"]["Row"]> & { message: string };
+        Update: Partial<Database["public"]["Tables"]["telegram_broadcasts"]["Row"]>;
       };
       shared_bundles: {
         Row: {

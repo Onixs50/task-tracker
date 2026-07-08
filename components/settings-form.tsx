@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
 import { createClient } from "@/lib/supabase/client";
+import { TelegramConnectPanel } from "@/components/telegram-connect-panel";
 import type { Database } from "@/lib/supabase/types";
 
 type Profile = Database["public"]["Tables"]["profiles"]["Row"];
@@ -318,6 +319,15 @@ export function SettingsForm({ profile }: { profile: Profile | null }) {
       <button onClick={save} className="w-full rounded-sm bg-gold/15 py-2 text-sm text-gold hover:bg-gold/25">
         {saved ? t("saved") : t("save")}
       </button>
+
+      {profile?.id && (
+        <TelegramConnectPanel
+          userId={profile.id}
+          initialChatId={profile.telegram_chat_id}
+          initialUsername={profile.telegram_username}
+          initialRemindersEnabled={profile.telegram_reminders_enabled}
+        />
+      )}
 
       <section className="space-y-3 rounded-lg border border-border bg-surface p-5">
         <h2 className="text-xs font-medium uppercase tracking-wide text-muted">{t("data")}</h2>

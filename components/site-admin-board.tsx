@@ -4,10 +4,12 @@ import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { Plus, Trash2, Pencil, X, Megaphone, CheckCircle2, Circle } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
-import { MascotBoy } from "@/components/mascot-boy";
+import { AnnouncementBanner } from "@/components/announcement-banner";
 import type { Database } from "@/lib/supabase/types";
 
 type Announcement = Database["public"]["Tables"]["announcements"]["Row"];
+
+const ACCENTS: Announcement["accent"][] = ["gold", "teal", "danger"];
 
 export function SiteAdminBoard({ initialAnnouncements }: { initialAnnouncements: Announcement[] }) {
   const t = useTranslations("siteAdmin");
@@ -16,11 +18,17 @@ export function SiteAdminBoard({ initialAnnouncements }: { initialAnnouncements:
   const [editing, setEditing] = useState<Announcement | null>(null);
   const [title, setTitle] = useState("");
   const [message, setMessage] = useState("");
+  const [maxViews, setMaxViews] = useState(2);
+  const [accent, setAccent] = useState<Announcement["accent"]>("gold");
+  const [showMascot, setShowMascot] = useState(true);
 
   function resetForm() {
     setEditing(null);
     setTitle("");
     setMessage("");
+    setMaxViews(2);
+    setAccent("gold");
+    setShowMascot(true);
     setShowForm(false);
   }
 
@@ -28,6 +36,9 @@ export function SiteAdminBoard({ initialAnnouncements }: { initialAnnouncements:
     setEditing(a);
     setTitle(a.title ?? "");
     setMessage(a.message);
+    setMaxViews(a.max_views);
+    setAccent(a.accent);
+    setShowMascot(a.show_mascot);
     setShowForm(true);
   }
 
@@ -39,10 +50,18 @@ export function SiteAdminBoard({ initialAnnouncements }: { initialAnnouncements:
     } = await supabase.auth.getUser();
     if (!user) return;
 
+    const fields = {
+      title: title.trim() || null,
+      message: message.trim(),
+      max_views: Math.max(1, maxViews || 1),
+      accent,
+      show_mascot: showMascot,
+    };
+
     if (editing) {
       const { data, error } = await supabase
         .from("announcements")
-        .update({ title: title.trim() || null, message: message.trim() })
+        .update(fields)
         .eq("id", editing.id)
         .select()
         .single();
@@ -50,7 +69,7 @@ export function SiteAdminBoard({ initialAnnouncements }: { initialAnnouncements:
     } else {
       const { data, error } = await supabase
         .from("announcements")
-        .insert({ title: title.trim() || null, message: message.trim(), created_by: user.id, active: true })
+        .insert({ ...fields, created_by: user.id, active: true })
         .select()
         .single();
       if (!error && data) setAnnouncements((prev) => [data, ...prev]);
@@ -78,10 +97,6 @@ export function SiteAdminBoard({ initialAnnouncements }: { initialAnnouncements:
 
   return (
     <div className="space-y-5">
-      <div className="rounded-lg border border-border bg-surface p-4">
-        <MascotBoy size="sm" message={t("previewHint")} />
-      </div>
-
       <div className="flex items-center justify-between">
         <h2 className="text-xs font-medium uppercase tracking-wide text-muted">{t("announcements")}</h2>
         <button
@@ -96,7 +111,7 @@ export function SiteAdminBoard({ initialAnnouncements }: { initialAnnouncements:
       </div>
 
       {showForm && (
-        <div className="space-y-3 rounded-md border border-border bg-surface p-4 animate-fade-up">
+        <div className="space-y-4 rounded-md border border-border bg-surface p-4 animate-fade-up">
           <div className="flex items-center justify-between">
             <span className="text-xs font-medium text-muted">
               {editing ? t("editAnnouncement") : t("newAnnouncement")}
@@ -105,6 +120,7 @@ export function SiteAdminBoard({ initialAnnouncements }: { initialAnnouncements:
               <X size={14} />
             </button>
           </div>
+
           <input
             value={title}
             onChange={(e) => setTitle(e.target.value)}
@@ -118,6 +134,57 @@ export function SiteAdminBoard({ initialAnnouncements }: { initialAnnouncements:
             rows={3}
             className="w-full rounded-sm border border-border bg-bg px-2.5 py-2 text-sm outline-none focus:border-gold/60"
           />
+
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+            <div>
+              <label className="mb-1 block text-xs text-muted">{t("maxViews")}</label>
+              <input
+                type="number"
+                min={1}
+                max={20}
+                value={maxViews}
+                onChange={(e) => setMaxViews(parseInt(e.target.value, 10) || 1)}
+                className="w-full rounded-sm border border-border bg-bg px-2.5 py-2 text-sm outline-none focus:border-gold/60"
+              />
+            </div>
+            <div>
+              <label className="mb-1 block text-xs text-muted">{t("accentColor")}</label>
+              <select
+                value={accent}
+                onChange={(e) => setAccent(e.target.value as Announcement["accent"])}
+                className="w-full rounded-sm border border-border bg-bg px-2.5 py-2 text-sm outline-none focus:border-gold/60"
+              >
+                {ACCENTS.map((a) => (
+                  <option key={a} value={a}>
+                    {t(`accent_${a}`)}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <label className="flex items-center gap-2 self-end pb-2 text-xs text-muted">
+              <input type="checkbox" checked={showMascot} onChange={(e) => setShowMascot(e.target.checked)} />
+              {t("showMascot")}
+            </label>
+          </div>
+
+          {message.trim() && (
+            <div>
+              <p className="mb-1.5 text-xs text-muted">{t("previewHint")}</p>
+              <AnnouncementBanner
+                preview
+                announcement={{
+                  id: "preview",
+                  title: title.trim() || null,
+                  message: message.trim(),
+                  max_views: maxViews,
+                  accent,
+                  show_mascot: showMascot,
+                }}
+                initialViews={{}}
+              />
+            </div>
+          )}
+
           <button onClick={save} className="w-full rounded-sm bg-gold/15 py-2 text-sm text-gold hover:bg-gold/25">
             {t("save")}
           </button>
@@ -132,6 +199,10 @@ export function SiteAdminBoard({ initialAnnouncements }: { initialAnnouncements:
               <div className="min-w-0">
                 {a.title && <p className="truncate text-sm font-medium">{a.title}</p>}
                 <p className="whitespace-pre-wrap text-xs text-muted">{a.message}</p>
+                <p className="mt-1 text-[11px] text-muted/70">
+                  {t(`accent_${a.accent}`)} · {t("maxViewsShort", { count: a.max_views })}
+                  {!a.show_mascot ? ` · ${t("mascotHiddenShort")}` : ""}
+                </p>
               </div>
             </div>
             <div className="flex shrink-0 items-center gap-2.5 text-muted">
