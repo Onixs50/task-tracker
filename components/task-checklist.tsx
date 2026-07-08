@@ -2,8 +2,9 @@
 
 import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
-import { Check, Undo2, ExternalLink } from "lucide-react";
+import { Check, Undo2, ExternalLink, Bell } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+import { TaskReminderControl } from "@/components/task-reminder-control";
 import type { Database } from "@/lib/supabase/types";
 
 type Project = Database["public"]["Tables"]["projects"]["Row"];
@@ -22,12 +23,14 @@ export function TaskChecklist({
   logs,
   todayISO,
   locale,
+  timezone,
 }: {
   projects: Project[];
   templates: TaskTemplate[];
   logs: TaskLog[];
   todayISO: string;
   locale: string;
+  timezone: string;
 }) {
   const t = useTranslations("dashboard");
   const tCategory = useTranslations("category");
@@ -37,6 +40,7 @@ export function TaskChecklist({
     return map;
   });
   const [animatingOut, setAnimatingOut] = useState<Set<string>>(new Set());
+  const [openReminderId, setOpenReminderId] = useState<string | null>(null);
 
   async function persist(template: TaskTemplate, done: boolean) {
     const supabase = createClient();
@@ -138,43 +142,62 @@ export function TaskChecklist({
             <ul>
               {tasks.map((tpl) => {
                 const isAnimating = animatingOut.has(tpl.id);
+                const reminderOpen = openReminderId === tpl.id;
                 return (
                   <li
                     key={tpl.id}
                     onAnimationEnd={() => isAnimating && onAnimationEnd(tpl)}
-                    className={`flex items-center justify-between gap-3 overflow-hidden border-b border-border px-4 py-3 last:border-b-0 ${
+                    className={`overflow-hidden border-b border-border px-4 py-3 last:border-b-0 ${
                       isAnimating ? "animate-fade-out-collapse" : "animate-fade-up"
                     }`}
                   >
-                    <div className="flex min-w-0 items-center gap-3">
-                      <span className="text-lg leading-none">{tpl.emoji}</span>
-                      <div className="min-w-0">
-                        <div className="flex items-center gap-1.5">
-                          <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${PRIORITY_DOT[tpl.priority]}`} />
-                          <p className="truncate text-sm text-ink">{tpl.title}</p>
-                          {tpl.link_url && (
-                            <a
-                              href={tpl.link_url}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              onClick={(e) => e.stopPropagation()}
-                              title={tpl.link_url}
-                              className="shrink-0 text-muted transition hover:text-teal"
-                            >
-                              <ExternalLink size={13} />
-                            </a>
-                          )}
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="flex min-w-0 items-center gap-3">
+                        <span className="text-lg leading-none">{tpl.emoji}</span>
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-1.5">
+                            <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${PRIORITY_DOT[tpl.priority]}`} />
+                            <p className="truncate text-sm text-ink">{tpl.title}</p>
+                            {tpl.link_url && (
+                              <a
+                                href={tpl.link_url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                onClick={(e) => e.stopPropagation()}
+                                title={tpl.link_url}
+                                className="shrink-0 text-muted transition hover:text-teal"
+                              >
+                                <ExternalLink size={13} />
+                              </a>
+                            )}
+                          </div>
+                          <p className="truncate text-xs text-muted">{tCategory(tpl.category)}</p>
                         </div>
-                        <p className="truncate text-xs text-muted">{tCategory(tpl.category)}</p>
+                      </div>
+                      <div className="flex shrink-0 items-center gap-2">
+                        <button
+                          onClick={() => setOpenReminderId(reminderOpen ? null : tpl.id)}
+                          title={t("remind")}
+                          className={`rounded-md border p-1.5 transition ${
+                            reminderOpen ? "border-gold/50 bg-gold/15 text-gold" : "border-border text-muted hover:text-gold"
+                          }`}
+                        >
+                          <Bell size={13} />
+                        </button>
+                        <button
+                          onClick={() => markDone(tpl)}
+                          className="flex items-center gap-1.5 rounded-md border border-teal/40 bg-teal/10 px-3 py-1.5 text-xs font-medium text-teal transition hover:bg-teal/20"
+                        >
+                          <Check size={13} />
+                          {t("markDone")}
+                        </button>
                       </div>
                     </div>
-                    <button
-                      onClick={() => markDone(tpl)}
-                      className="flex shrink-0 items-center gap-1.5 rounded-md border border-teal/40 bg-teal/10 px-3 py-1.5 text-xs font-medium text-teal transition hover:bg-teal/20"
-                    >
-                      <Check size={13} />
-                      {t("markDone")}
-                    </button>
+                    {reminderOpen && (
+                      <div className="mt-3">
+                        <TaskReminderControl templateId={tpl.id} timezone={timezone} />
+                      </div>
+                    )}
                   </li>
                 );
               })}

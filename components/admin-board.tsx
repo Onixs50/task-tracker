@@ -6,6 +6,7 @@ import { Plus, Trash2, Pencil, X, Copy, Archive, ArchiveRestore, Search, Externa
 import { createClient } from "@/lib/supabase/client";
 import { TASK_CATEGORIES, EMOJI_PICKS } from "@/lib/task-categories";
 import { ShareModal } from "@/components/share-modal";
+import { TaskReminderControl } from "@/components/task-reminder-control";
 import type { Database, RecurrenceType, Priority, TaskCategory, SharedTaskPayload } from "@/lib/supabase/types";
 
 type Project = Database["public"]["Tables"]["projects"]["Row"];
@@ -46,10 +47,12 @@ export function AdminBoard({
   initialProjects,
   initialTemplates,
   locale,
+  timezone,
 }: {
   initialProjects: Project[];
   initialTemplates: TaskTemplate[];
   locale: string;
+  timezone: string;
 }) {
   const t = useTranslations("admin");
   const tRec = useTranslations("recurrence");
@@ -574,6 +577,8 @@ export function AdminBoard({
                     ))}
                   </div>
                 </div>
+
+                {editingTask && <TaskReminderControl templateId={editingTask.id} timezone={timezone} />}
 
                 <button onClick={saveTask} className="w-full rounded-sm bg-gold/15 py-2 text-sm text-gold hover:bg-gold/25">
                   {t("save")}

@@ -1,14 +1,14 @@
 import { NextResponse } from "next/server";
 import { createServiceClient } from "@/lib/supabase/service";
 import { sendTelegramMessage } from "@/lib/telegram";
-import { isoDateInTZ, hourInTZ } from "@/lib/dates";
-import { isDueOn } from "@/lib/recurrence";
+import { isoDateInTZ, nextDailyOccurrenceUTC } from "@/lib/dates";
 
-// Runs hourly (see vercel.json). Only actually messages a user once their
-// local time hits REMINDER_HOUR, so everyone gets it at roughly the same
-// point in their own evening regardless of timezone.
-const REMINDER_HOUR = 20;
-
+/**
+ * This is purely a delivery mechanism — it never decides on its own to
+ * remind anyone about anything. It only fires the exact reminders a user
+ * explicitly scheduled on a specific task (see task_reminders), and it
+ * skips a reminder entirely if that task's already marked done today.
+ */
 export async function GET(request: Request) {
   const auth = request.headers.get("authorization");
   if (process.env.CRON_SECRET && auth !== `Bearer ${process.env.CRON_SECRET}`) {
@@ -16,48 +16,75 @@ export async function GET(request: Request) {
   }
 
   const supabase = createServiceClient();
+  const now = new Date();
 
-  const { data: profiles } = await supabase
-    .from("profiles")
-    .select("id, timezone, locale, telegram_chat_id, telegram_reminders_enabled")
-    .not("telegram_chat_id", "is", null)
-    .eq("telegram_reminders_enabled", true);
+  const { data: dueReminders } = await supabase
+    .from("task_reminders")
+    .select("*")
+    .eq("active", true)
+    .lte("next_send_at", now.toISOString());
 
-  const due = (profiles ?? []).filter((p) => hourInTZ(p.timezone || "UTC") === REMINDER_HOUR);
-
-  let sent = 0;
-  for (const profile of due) {
-    const todayISO = isoDateInTZ(profile.timezone || "UTC");
-
-    const { data: templates } = await supabase
-      .from("task_templates")
-      .select("*")
-      .eq("user_id", profile.id)
-      .eq("active", true)
-      .eq("archived", false);
-
-    const dueToday = (templates ?? []).filter((tpl) => isDueOn(tpl, todayISO));
-    if (dueToday.length === 0) continue;
-
-    const { data: logs } = await supabase
-      .from("task_logs")
-      .select("task_template_id, status")
-      .eq("user_id", profile.id)
-      .eq("log_date", todayISO);
-
-    const doneIds = new Set((logs ?? []).filter((l) => l.status === "done").map((l) => l.task_template_id));
-    const pending = dueToday.filter((tpl) => !doneIds.has(tpl.id));
-    if (pending.length === 0) continue;
-
-    const isFa = profile.locale === "fa";
-    const list = pending.map((tpl) => `${tpl.emoji} ${tpl.title}`).join("\n");
-    const text = isFa
-      ? `📋 یادآوری دفتر روزانه\n\nهنوز این‌ کارها امروز انجام نشدن:\n${list}`
-      : `📋 Daily Ledger reminder\n\nStill pending today:\n${list}`;
-
-    const ok = await sendTelegramMessage(profile.telegram_chat_id!, text);
-    if (ok) sent++;
+  if (!dueReminders || dueReminders.length === 0) {
+    return NextResponse.json({ ok: true, checked: 0, sent: 0 });
   }
 
-  return NextResponse.json({ ok: true, checked: due.length, sent });
+  const templateIds = [...new Set(dueReminders.map((r) => r.task_template_id))];
+  const userIds = [...new Set(dueReminders.map((r) => r.user_id))];
+
+  const [{ data: templates }, { data: profiles }] = await Promise.all([
+    supabase.from("task_templates").select("id, title, emoji, active, archived").in("id", templateIds),
+    supabase
+      .from("profiles")
+      .select("id, timezone, locale, telegram_chat_id, telegram_reminders_enabled")
+      .in("id", userIds),
+  ]);
+
+  const templateMap = new Map((templates ?? []).map((tpl) => [tpl.id, tpl]));
+  const profileMap = new Map((profiles ?? []).map((p) => [p.id, p]));
+
+  let sent = 0;
+
+  for (const reminder of dueReminders) {
+    const tpl = templateMap.get(reminder.task_template_id);
+    const profile = profileMap.get(reminder.user_id);
+    const timezone = profile?.timezone || "UTC";
+
+    // Always decide the row's next state first, so a broken reminder can
+    // never get stuck re-triggering the dispatcher on every run.
+    let patch: { active?: boolean; next_send_at?: string };
+    if (reminder.reminder_type === "once") {
+      patch = { active: false };
+    } else if (reminder.reminder_type === "daily_at") {
+      patch = { next_send_at: nextDailyOccurrenceUTC(timezone, reminder.time_of_day || "20:00", new Date(now.getTime() + 60_000)).toISOString() };
+    } else {
+      const hours = reminder.interval_hours || 3;
+      patch = { next_send_at: new Date(now.getTime() + hours * 3_600_000).toISOString() };
+    }
+
+    let shouldSend = !!tpl && tpl.active && !tpl.archived && !!profile?.telegram_chat_id && profile.telegram_reminders_enabled;
+
+    if (shouldSend) {
+      const todayISO = isoDateInTZ(timezone);
+      const { data: log } = await supabase
+        .from("task_logs")
+        .select("status")
+        .eq("task_template_id", reminder.task_template_id)
+        .eq("log_date", todayISO)
+        .maybeSingle();
+      if (log?.status === "done") shouldSend = false;
+    }
+
+    if (shouldSend) {
+      const isFa = profile!.locale === "fa";
+      const text = isFa
+        ? `🔔 یادآوری: ${tpl!.emoji} ${tpl!.title}`
+        : `🔔 Reminder: ${tpl!.emoji} ${tpl!.title}`;
+      const ok = await sendTelegramMessage(profile!.telegram_chat_id!, text);
+      if (ok) sent++;
+    }
+
+    await supabase.from("task_reminders").update(patch).eq("id", reminder.id);
+  }
+
+  return NextResponse.json({ ok: true, checked: dueReminders.length, sent });
 }

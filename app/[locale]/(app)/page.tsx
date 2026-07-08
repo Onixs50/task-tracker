@@ -94,6 +94,7 @@ export default async function DashboardPage() {
         logs={todayLogs ?? []}
         todayISO={todayISO}
         locale={locale}
+        timezone={timezone}
       />
     </div>
   );

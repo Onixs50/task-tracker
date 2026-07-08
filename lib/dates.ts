@@ -15,6 +15,37 @@ export function isoDateInTZ(timezone: string, date: Date = new Date()): string {
   return `${y}-${m}-${d}`;
 }
 
+/**
+ * Given a "HH:MM" wall-clock time in a timezone, returns the next UTC
+ * instant that time occurs at (today if still ahead, otherwise tomorrow).
+ * Used to schedule per-task Telegram reminders in the user's local time.
+ */
+export function nextDailyOccurrenceUTC(timezone: string, hhmm: string, from: Date = new Date()): Date {
+  const [hh, mm] = hhmm.split(":").map((n) => parseInt(n, 10));
+  const todayISO = isoDateInTZ(timezone, from);
+  const candidateUTC = new Date(`${todayISO}T${String(hh).padStart(2, "0")}:${String(mm).padStart(2, "0")}:00Z`);
+
+  const localStr = new Intl.DateTimeFormat("en-US", {
+    timeZone: timezone,
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  }).format(candidateUTC);
+  const [gotHH, gotMM] = localStr.split(":").map((n) => parseInt(n, 10));
+
+  const desired = hh * 60 + mm;
+  const got = (gotHH % 24) * 60 + gotMM;
+  let diffMinutes = desired - got;
+  if (diffMinutes > 12 * 60) diffMinutes -= 24 * 60;
+  if (diffMinutes < -12 * 60) diffMinutes += 24 * 60;
+
+  let result = new Date(candidateUTC.getTime() + diffMinutes * 60_000);
+  if (result.getTime() <= from.getTime()) {
+    result = new Date(result.getTime() + 24 * 60 * 60_000);
+  }
+  return result;
+}
+
 /** 0-23, computed in the given timezone. */
 export function hourInTZ(timezone: string, date: Date = new Date()): number {
   const hour = new Intl.DateTimeFormat("en-US", { timeZone: timezone, hour: "2-digit", hour12: false }).format(date);

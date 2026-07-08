@@ -149,6 +149,26 @@ export interface Database {
         Insert: Partial<Database["public"]["Tables"]["telegram_broadcasts"]["Row"]> & { message: string };
         Update: Partial<Database["public"]["Tables"]["telegram_broadcasts"]["Row"]>;
       };
+      task_reminders: {
+        Row: {
+          id: string;
+          task_template_id: string;
+          user_id: string;
+          reminder_type: "once" | "daily_at" | "interval";
+          time_of_day: string | null;
+          interval_hours: number | null;
+          next_send_at: string;
+          active: boolean;
+          created_at: string;
+        };
+        Insert: Partial<Database["public"]["Tables"]["task_reminders"]["Row"]> & {
+          task_template_id: string;
+          user_id: string;
+          reminder_type: "once" | "daily_at" | "interval";
+          next_send_at: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["task_reminders"]["Row"]>;
+      };
       shared_bundles: {
         Row: {
           id: string;

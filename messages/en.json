@@ -80,6 +80,7 @@
     "streak": "day streak",
     "remaining": "left today",
     "markDone": "Mark done",
+    "remind": "Telegram reminder",
     "undo": "Undo",
     "doneToday": "Closed out today",
     "doneAt": "Closed at {time}"
@@ -190,15 +191,15 @@
     "bannerSpeed": "Banner scroll speed",
     "weekStart": "Week starts on",
     "showQuotes": "Show motivational quotes in the banner",
-    "telegram": "Telegram reminders",
-    "telegramHint": "Connect Telegram to get a nudge from the bot each evening if you've still got tasks left.",
+    "telegram": "Telegram connection",
+    "telegramHint": "Connect Telegram so you can set your own reminder time on any task — the site never sends anything on its own.",
     "telegramConnect": "Connect Telegram",
     "telegramCodeHint": "Send this code to the bot, or just tap the button below:",
     "telegramOpenBot": "Open the Telegram bot",
     "telegramWaiting": "Waiting for connection… it'll link automatically once you hit Start in Telegram.",
     "telegramConnected": "Connected to Telegram",
     "telegramConnectedAs": "Connected to Telegram (@{username})",
-    "telegramReminders": "Send daily reminders",
+    "telegramReminders": "Telegram reminders enabled (master switch)",
     "telegramDisconnect": "Disconnect",
     "data": "Data",
     "exportCsv": "Export history as CSV",
@@ -256,6 +257,21 @@
   },
   "announcements": {
     "dismiss": "Dismiss"
+  },
+  "reminders": {
+    "title": "Telegram reminder for this task",
+    "off": "Off",
+    "once": "Once, after a while",
+    "dailyAt": "Every day at a set time",
+    "everyNHours": "Every N hours",
+    "remindIn": "Remind me in",
+    "remindAt": "Remind me at",
+    "remindEvery": "Remind me every",
+    "hours": "hours",
+    "save": "Save",
+    "saving": "Saving…",
+    "saved": "Saved ✓",
+    "requiresTelegram": "Only takes effect if you've connected Telegram in settings."
   },
   "share": {
     "title": "Share tasks",
