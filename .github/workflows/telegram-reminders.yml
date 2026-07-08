@@ -1,0 +1,23 @@
+name: Telegram reminder dispatcher
+
+# Pings the site's reminder-dispatch endpoint every 15 minutes so per-task
+# Telegram reminders go out on time — free, and with no day/trial limit
+# (unlike some third-party cron services). See TELEGRAM_SETUP.md.
+#
+# Note: GitHub automatically pauses scheduled workflows after 60 days with
+# no commits to the repo. If reminders stop arriving after a long quiet
+# period, go to the repo's Actions tab and re-enable this workflow.
+
+on:
+  schedule:
+    - cron: "*/15 * * * *"
+  workflow_dispatch: {}
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call the reminder dispatcher
+        run: |
+          curl -sf -X GET "${{ secrets.APP_URL }}/api/cron/telegram-reminders" \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}"
