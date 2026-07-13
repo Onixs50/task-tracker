@@ -158,18 +158,19 @@ export function TaskChecklist({
                           <div className="flex items-center gap-1.5">
                             <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${PRIORITY_DOT[tpl.priority]}`} />
                             <p className="truncate text-sm text-ink">{tpl.title}</p>
-                            {tpl.link_url && (
+                            {[tpl.link_url, ...(tpl.extra_links ?? [])].filter(Boolean).map((url, i) => (
                               <a
-                                href={tpl.link_url}
+                                key={i}
+                                href={url!}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 onClick={(e) => e.stopPropagation()}
-                                title={tpl.link_url}
+                                title={url!}
                                 className="shrink-0 text-muted transition hover:text-teal"
                               >
                                 <ExternalLink size={13} />
                               </a>
-                            )}
+                            ))}
                           </div>
                           <p className="truncate text-xs text-muted">{tCategory(tpl.category)}</p>
                         </div>

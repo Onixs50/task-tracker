@@ -33,6 +33,7 @@ const emptyForm = () => ({
   title: "",
   description: "",
   link_url: "",
+  extra_links: [] as string[],
   category: "custom" as TaskCategory,
   emoji: "✅",
   recurrence_type: "daily" as RecurrenceType,
@@ -85,6 +86,7 @@ export function AdminBoard({
       title: tpl.title,
       description: tpl.description,
       link_url: tpl.link_url,
+      extra_links: tpl.extra_links ?? [],
       category: tpl.category,
       emoji: tpl.emoji,
       recurrence_type: tpl.recurrence_type,
@@ -161,6 +163,7 @@ export function AdminBoard({
       title: form.title.trim(),
       description: form.description.trim() || null,
       link_url: normalizeUrl(form.link_url) || null,
+      extra_links: form.extra_links.map((l) => normalizeUrl(l)).filter(Boolean),
       category: form.category,
       emoji: form.emoji,
       recurrence_type: form.recurrence_type,
@@ -225,6 +228,7 @@ export function AdminBoard({
       title: tpl.title,
       description: tpl.description ?? "",
       link_url: tpl.link_url ?? "",
+      extra_links: tpl.extra_links ?? [],
       category: tpl.category,
       emoji: tpl.emoji,
       recurrence_type: tpl.recurrence_type,
@@ -428,14 +432,48 @@ export function AdminBoard({
 
                 <div>
                   <label className="mb-1 block text-xs text-muted">{t("taskLink")}</label>
-                  <input
-                    type="text"
-                    dir="ltr"
-                    value={form.link_url}
-                    onChange={(e) => setForm({ ...form, link_url: e.target.value })}
-                    placeholder={t("taskLinkPlaceholder")}
-                    className="w-full rounded-sm border border-border bg-bg px-2.5 py-2 text-sm outline-none focus:border-gold/60"
-                  />
+                  <div className="flex items-center gap-1.5">
+                    <input
+                      type="text"
+                      dir="ltr"
+                      value={form.link_url}
+                      onChange={(e) => setForm({ ...form, link_url: e.target.value })}
+                      placeholder={t("taskLinkPlaceholder")}
+                      className="w-full rounded-sm border border-border bg-bg px-2.5 py-2 text-sm outline-none focus:border-gold/60"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setForm({ ...form, extra_links: [...form.extra_links, ""] })}
+                      title={t("addAnotherLink")}
+                      className="flex h-8 w-8 shrink-0 items-center justify-center rounded-sm border border-border text-muted hover:border-gold/50 hover:text-gold"
+                    >
+                      <Plus size={14} />
+                    </button>
+                  </div>
+
+                  {form.extra_links.map((link, i) => (
+                    <div key={i} className="mt-1.5 flex items-center gap-1.5">
+                      <input
+                        type="text"
+                        dir="ltr"
+                        value={link}
+                        onChange={(e) => {
+                          const next = [...form.extra_links];
+                          next[i] = e.target.value;
+                          setForm({ ...form, extra_links: next });
+                        }}
+                        placeholder={t("taskLinkPlaceholder")}
+                        className="w-full rounded-sm border border-border bg-bg px-2.5 py-2 text-sm outline-none focus:border-gold/60"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setForm({ ...form, extra_links: form.extra_links.filter((_, idx) => idx !== i) })}
+                        className="flex h-8 w-8 shrink-0 items-center justify-center rounded-sm border border-border text-muted hover:border-danger/50 hover:text-danger"
+                      >
+                        <X size={14} />
+                      </button>
+                    </div>
+                  ))}
                 </div>
 
                 <div>
@@ -608,17 +646,18 @@ export function AdminBoard({
                     </div>
                   </div>
                   <div className="flex shrink-0 gap-2 text-muted">
-                    {tpl.link_url && (
+                    {[tpl.link_url, ...(tpl.extra_links ?? [])].filter(Boolean).map((url, i) => (
                       <a
-                        href={tpl.link_url}
+                        key={i}
+                        href={url!}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-muted hover:text-teal"
-                        title={tpl.link_url}
+                        title={url!}
                       >
                         <ExternalLink size={14} />
                       </a>
-                    )}
+                    ))}
                     <Share2 size={14} className="cursor-pointer hover:text-gold" onClick={() => shareSingle(tpl)} />
                     <Copy size={14} className="cursor-pointer hover:text-gold" onClick={() => duplicateTask(tpl)} />
                     {tpl.archived ? (

@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import { createClient } from "@/lib/supabase/server";
 import { AppShell } from "@/components/app-shell";
 import { UsernameGate } from "@/components/username-gate";
-import { isSuperAdmin } from "@/lib/admin";
+import { isSiteAdmin } from "@/lib/admin";
 
 export default async function AppGroupLayout({ children }: { children: ReactNode }) {
   const supabase = createClient();
@@ -36,7 +36,7 @@ export default async function AppGroupLayout({ children }: { children: ReactNode
       email={email}
       quotes={quotes}
       bannerSpeed={bannerSpeed}
-      isSuperAdmin={isSuperAdmin(email)}
+      isSuperAdmin={await isSiteAdmin(email)}
     >
       <UsernameGate initialUsername={username}>{children}</UsernameGate>
     </AppShell>

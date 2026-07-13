@@ -69,6 +69,7 @@ export interface Database {
           title: string;
           description: string | null;
           link_url: string | null;
+          extra_links: string[];
           recurrence_type: RecurrenceType;
           recurrence_days: number[] | null;
           custom_dates: string[] | null;
@@ -182,6 +183,25 @@ export interface Database {
         };
         Update: Partial<Database["public"]["Tables"]["shared_bundles"]["Row"]>;
       };
+      site_admins: {
+        Row: {
+          email: string;
+          added_by: string | null;
+          created_at: string;
+        };
+        Insert: Partial<Database["public"]["Tables"]["site_admins"]["Row"]> & { email: string };
+        Update: Partial<Database["public"]["Tables"]["site_admins"]["Row"]>;
+      };
+      page_views: {
+        Row: {
+          id: number;
+          path: string;
+          user_id: string | null;
+          created_at: string;
+        };
+        Insert: Partial<Database["public"]["Tables"]["page_views"]["Row"]> & { path: string };
+        Update: Partial<Database["public"]["Tables"]["page_views"]["Row"]>;
+      };
     };
   };
 }
@@ -191,6 +211,7 @@ export interface SharedTaskPayload {
   title: string;
   description: string | null;
   link_url: string | null;
+  extra_links: string[];
   category: TaskCategory;
   emoji: string;
   recurrence_type: RecurrenceType;

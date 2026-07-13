@@ -1,6 +1,10 @@
 {
-  "app": { "name": "Daily Ledger" },
-  "footer": { "builtBy": "Built by Onixia" },
+  "app": {
+    "name": "Daily Ledger"
+  },
+  "footer": {
+    "builtBy": "Built by Onixia"
+  },
   "about": {
     "back": "Back",
     "title": "What's Daily Ledger?",
@@ -85,7 +89,11 @@
     "doneToday": "Closed out today",
     "doneAt": "Closed at {time}"
   },
-  "priority": { "low": "Low", "medium": "Medium", "high": "High" },
+  "priority": {
+    "low": "Low",
+    "medium": "Medium",
+    "high": "High"
+  },
   "category": {
     "transaction": "On-chain transaction",
     "liquidity_check": "Liquidity check",
@@ -102,7 +110,13 @@
     "once": "One time"
   },
   "days": {
-    "0": "Sun", "1": "Mon", "2": "Tue", "3": "Wed", "4": "Thu", "5": "Fri", "6": "Sat"
+    "0": "Sun",
+    "1": "Mon",
+    "2": "Tue",
+    "3": "Wed",
+    "4": "Thu",
+    "5": "Fri",
+    "6": "Sat"
   },
   "admin": {
     "title": "Manage your ledger",
@@ -114,8 +128,8 @@
     "editTask": "Edit task",
     "taskTitle": "Task title",
     "taskDescription": "Description (optional)",
-  "taskLink": "Link (optional)",
-  "taskLinkPlaceholder": "https://example.com",
+    "taskLink": "Link (optional)",
+    "taskLinkPlaceholder": "https://example.com",
     "category": "Category",
     "emoji": "Icon",
     "recurrenceType": "Repeats",
@@ -144,7 +158,8 @@
     "quotesHint": "Whatever you add here rotates through your top banner — no defaults, just your own words.",
     "newQuote": "Write a message…",
     "addQuote": "Add",
-    "noQuotes": "No custom messages yet — the banner will just show the date and time."
+    "noQuotes": "No custom messages yet — the banner will just show the date and time.",
+    "addAnotherLink": "Add another link"
   },
   "airdrops": {
     "title": "Airdrops",
@@ -226,7 +241,7 @@
   "siteAdmin": {
     "title": "Site Admin",
     "subtitle": "Manage the announcement banner shown to every user, and send Telegram messages to members from here.",
-    "noAccess": "This section is only available to the site's main admin.",
+    "noAccess": "This section is only available to site admins.",
     "previewHint": "This is how it'll look to users.",
     "announcements": "Announcements",
     "newAnnouncement": "New announcement",
@@ -253,7 +268,34 @@
     "broadcastSent": "Sent to {sent} of {total}.",
     "broadcastError": "Couldn't send — try again.",
     "broadcastHistory": "Previous messages",
-    "recipientCount": "{count, plural, =1 {one person} other {# people}}"
+    "recipientCount": "{count, plural, =1 {one person} other {# people}}",
+    "tab_announcements": "Announcements",
+    "tab_stats": "Stats",
+    "tab_admins": "Admins",
+    "statsUnavailable": "Stats aren't available yet — the service role key isn't configured.",
+    "visits": "Visits",
+    "totalVisits": "Total visits",
+    "visitsToday": "Visits today",
+    "totalUsers": "Total users",
+    "telegramLinkedStat": "Telegram linked",
+    "totalProjectsStat": "Projects",
+    "totalTasksStat": "Tasks",
+    "completedTasksStat": "Completed tasks",
+    "totalAirdropsStat": "Airdrops logged",
+    "visitsChartTitle": "Visits — last 14 days",
+    "telegramShareTitle": "Telegram-linked share",
+    "linked": "Linked",
+    "notLinked": "Not linked",
+    "topPagesTitle": "Most-visited sections",
+    "pageHome": "Home",
+    "noData": "Not enough data yet.",
+    "adminsTitle": "Site admins",
+    "adminsSubtitle": "The owner always has access. Add other people's Google email here to give them the same Site Admin panel.",
+    "adminEmailPlaceholder": "email@example.com",
+    "addAdmin": "Add admin",
+    "addAdminError": "Couldn't add — check the email and try again.",
+    "ownerLabel": "Owner",
+    "adminLabel": "Admin"
   },
   "announcements": {
     "dismiss": "Dismiss"

@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createServiceClient } from "@/lib/supabase/service";
 import { sendTelegramBroadcast } from "@/lib/telegram";
-import { isSuperAdmin } from "@/lib/admin";
+import { isSiteAdmin } from "@/lib/admin";
 
 export async function POST(request: Request) {
   const supabase = createClient();
@@ -10,7 +10,7 @@ export async function POST(request: Request) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (!isSuperAdmin(user?.email)) {
+  if (!(await isSiteAdmin(user?.email))) {
     return NextResponse.json({ ok: false, error: "forbidden" }, { status: 403 });
   }
 

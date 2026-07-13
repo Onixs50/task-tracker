@@ -69,6 +69,7 @@ export function SharedImport({
       title: tpl.title,
       description: tpl.description,
       link_url: tpl.link_url,
+      extra_links: tpl.extra_links ?? [],
       category: tpl.category,
       emoji: tpl.emoji,
       recurrence_type: tpl.recurrence_type,

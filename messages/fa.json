@@ -1,6 +1,10 @@
 {
-  "app": { "name": "دفتر روزانه" },
-  "footer": { "builtBy": "ساخته‌شده توسط Onixia" },
+  "app": {
+    "name": "دفتر روزانه"
+  },
+  "footer": {
+    "builtBy": "ساخته‌شده توسط Onixia"
+  },
   "about": {
     "back": "بازگشت",
     "title": "دفتر روزانه دقیقاً چیه؟",
@@ -85,7 +89,11 @@
     "doneToday": "امروز انجام شد",
     "doneAt": "ساعت {time} انجام شد"
   },
-  "priority": { "low": "کم", "medium": "متوسط", "high": "زیاد" },
+  "priority": {
+    "low": "کم",
+    "medium": "متوسط",
+    "high": "زیاد"
+  },
   "category": {
     "transaction": "تراکنش آنچین",
     "liquidity_check": "چک لیکوییدیتی",
@@ -102,7 +110,13 @@
     "once": "یک‌بار"
   },
   "days": {
-    "0": "یک", "1": "دو", "2": "سه", "3": "چهار", "4": "پنج", "5": "جمعه", "6": "شنبه"
+    "0": "یک",
+    "1": "دو",
+    "2": "سه",
+    "3": "چهار",
+    "4": "پنج",
+    "5": "جمعه",
+    "6": "شنبه"
   },
   "admin": {
     "title": "مدیریت دفتر",
@@ -114,8 +128,8 @@
     "editTask": "ویرایش تسک",
     "taskTitle": "عنوان تسک",
     "taskDescription": "توضیحات (اختیاری)",
-  "taskLink": "لینک (اختیاری)",
-  "taskLinkPlaceholder": "https://example.com",
+    "taskLink": "لینک (اختیاری)",
+    "taskLinkPlaceholder": "https://example.com",
     "category": "دسته",
     "emoji": "آیکون",
     "recurrenceType": "تکرار",
@@ -134,8 +148,8 @@
     "search": "جستجوی تسک…",
     "filterAll": "همه",
     "showArchived": "نمایش آرشیو‌شده‌ها",
-  "selectToShare": "انتخاب برای اشتراک‌گذاری",
-  "shareSelected": "اشتراک‌گذاری ({count})",
+    "selectToShare": "انتخاب برای اشتراک‌گذاری",
+    "shareSelected": "اشتراک‌گذاری ({count})",
     "noProjects": "هنوز پروژه‌ای نساختی — اول یک پروژه بساز تا بتونی تسک اضافه کنی.",
     "noTasks": "تسکی با این فیلتر پیدا نشد.",
     "confirmDelete": "حذف بشه؟ قابل بازگشت نیست.",
@@ -144,7 +158,8 @@
     "quotesHint": "هرچی اینجا اضافه کنی توی بنر بالای سایت می‌چرخه — بدون پیش‌فرض، فقط حرف خودت.",
     "newQuote": "یه پیام بنویس…",
     "addQuote": "افزودن",
-    "noQuotes": "هنوز پیامی اضافه نکردی — بنر فقط تاریخ و ساعت رو نشون می‌ده."
+    "noQuotes": "هنوز پیامی اضافه نکردی — بنر فقط تاریخ و ساعت رو نشون می‌ده.",
+    "addAnotherLink": "افزودن لینک دیگه"
   },
   "airdrops": {
     "title": "ایردراپ‌ها",
@@ -226,7 +241,7 @@
   "siteAdmin": {
     "title": "مدیریت سایت",
     "subtitle": "پیام‌های اعلامیه‌ای که برای همه‌ی کاربرها در صفحه‌ی اصلی نمایش داده می‌شه، و ارسال پیام تلگرامی به اعضا رو از اینجا مدیریت کن.",
-    "noAccess": "این بخش فقط برای مدیر اصلی سایت در دسترسه.",
+    "noAccess": "این بخش فقط برای مدیرهای سایت در دسترسه.",
     "previewHint": "همینطوری برای کاربرها نمایش داده می‌شه.",
     "announcements": "اعلامیه‌ها",
     "newAnnouncement": "اعلامیه‌ی جدید",
@@ -253,7 +268,34 @@
     "broadcastSent": "برای {sent} نفر از {total} نفر فرستاده شد.",
     "broadcastError": "ارسال انجام نشد، دوباره امتحان کن.",
     "broadcastHistory": "پیام‌های قبلی",
-    "recipientCount": "{count, plural, =1 {یک نفر} other {# نفر}}"
+    "recipientCount": "{count, plural, =1 {یک نفر} other {# نفر}}",
+    "tab_announcements": "اعلامیه‌ها",
+    "tab_stats": "آمار",
+    "tab_admins": "مدیران",
+    "statsUnavailable": "آمار هنوز در دسترس نیست — کلید سرویس (Service Role) تنظیم نشده.",
+    "visits": "بازدید",
+    "totalVisits": "کل بازدیدها",
+    "visitsToday": "بازدید امروز",
+    "totalUsers": "کل کاربرها",
+    "telegramLinkedStat": "وصل به تلگرام",
+    "totalProjectsStat": "پروژه‌ها",
+    "totalTasksStat": "تسک‌ها",
+    "completedTasksStat": "تسک‌های انجام‌شده",
+    "totalAirdropsStat": "ایردراپ‌های ثبت‌شده",
+    "visitsChartTitle": "بازدیدها — ۱۴ روز اخیر",
+    "telegramShareTitle": "سهم اعضای وصل به تلگرام",
+    "linked": "وصل‌شده",
+    "notLinked": "وصل‌نشده",
+    "topPagesTitle": "پربازدیدترین بخش‌ها",
+    "pageHome": "خانه",
+    "noData": "هنوز داده‌ی کافی نیست.",
+    "adminsTitle": "مدیران سایت",
+    "adminsSubtitle": "مدیر اصلی همیشه دسترسی داره. جیمیل افراد دیگه رو اینجا اضافه کن تا همین دسترسی مدیریت سایت رو بگیرن.",
+    "adminEmailPlaceholder": "email@example.com",
+    "addAdmin": "افزودن مدیر",
+    "addAdminError": "اضافه نشد — جیمیل رو چک کن و دوباره امتحان کن.",
+    "ownerLabel": "مدیر اصلی",
+    "adminLabel": "مدیر"
   },
   "announcements": {
     "dismiss": "بستن"

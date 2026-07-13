@@ -1,9 +1,13 @@
 import { getTranslations, getLocale } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { createServiceClient } from "@/lib/supabase/service";
-import { isSuperAdmin } from "@/lib/admin";
+import { isSiteAdmin, isSuperAdmin, listSiteAdmins } from "@/lib/admin";
+import { getSiteStats } from "@/lib/site-stats";
 import { SiteAdminBoard } from "@/components/site-admin-board";
 import { TelegramBroadcastPanel } from "@/components/telegram-broadcast-panel";
+import { SiteStatsView } from "@/components/site-stats-view";
+import { SiteAdminManager } from "@/components/site-admin-manager";
+import { SiteAdminTabs } from "@/components/site-admin-tabs";
 
 export default async function SiteAdminPage() {
   const supabase = createClient();
@@ -14,7 +18,7 @@ export default async function SiteAdminPage() {
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (!isSuperAdmin(user?.email)) {
+  if (!(await isSiteAdmin(user?.email))) {
     return (
       <div className="rounded-lg border border-border bg-surface p-8 text-center text-sm text-muted">
         {t("noAccess")}
@@ -48,16 +52,28 @@ export default async function SiteAdminPage() {
     // works, it just can't show a linked-members count.
   }
 
+  const [siteStats, admins] = await Promise.all([getSiteStats(), listSiteAdmins()]);
+  const canManageAdmins = isSuperAdmin(user?.email);
+
   return (
     <div className="space-y-8">
       <div>
         <h1 className="font-display text-2xl font-semibold">{t("title")}</h1>
         <p className="text-sm text-muted">{t("subtitle")}</p>
       </div>
-      <SiteAdminBoard initialAnnouncements={announcements ?? []} />
-      <div className="border-t border-border pt-6">
-        <TelegramBroadcastPanel initialBroadcasts={broadcasts ?? []} locale={locale} linkedCount={linkedCount} />
-      </div>
+
+      <SiteAdminTabs
+        announcementsContent={
+          <div className="space-y-6">
+            <SiteAdminBoard initialAnnouncements={announcements ?? []} />
+            <div className="border-t border-border pt-6">
+              <TelegramBroadcastPanel initialBroadcasts={broadcasts ?? []} locale={locale} linkedCount={linkedCount} />
+            </div>
+          </div>
+        }
+        statsContent={<SiteStatsView stats={siteStats} />}
+        adminsContent={<SiteAdminManager initialAdmins={admins} canManage={canManageAdmins} />}
+      />
     </div>
   );
 }
