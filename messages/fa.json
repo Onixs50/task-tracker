@@ -87,7 +87,9 @@
     "remind": "یادآوری تلگرامی",
     "undo": "بازگردانی",
     "doneToday": "امروز انجام شد",
-    "doneAt": "ساعت {time} انجام شد"
+    "doneAt": "ساعت {time} انجام شد",
+    "showDescription": "نمایش توضیحات",
+    "hideDescription": "پنهان کردن توضیحات"
   },
   "priority": {
     "low": "کم",

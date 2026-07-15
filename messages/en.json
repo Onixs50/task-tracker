@@ -87,7 +87,9 @@
     "remind": "Telegram reminder",
     "undo": "Undo",
     "doneToday": "Closed out today",
-    "doneAt": "Closed at {time}"
+    "doneAt": "Closed at {time}",
+    "showDescription": "Show description",
+    "hideDescription": "Hide description"
   },
   "priority": {
     "low": "Low",

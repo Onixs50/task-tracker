@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
-import { Check, Undo2, ExternalLink, Bell } from "lucide-react";
+import { Check, Undo2, ExternalLink, Bell, ChevronDown } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { TaskReminderControl } from "@/components/task-reminder-control";
 import type { Database } from "@/lib/supabase/types";
@@ -41,6 +41,7 @@ export function TaskChecklist({
   });
   const [animatingOut, setAnimatingOut] = useState<Set<string>>(new Set());
   const [openReminderId, setOpenReminderId] = useState<string | null>(null);
+  const [openDescriptionId, setOpenDescriptionId] = useState<string | null>(null);
 
   async function persist(template: TaskTemplate, done: boolean) {
     const supabase = createClient();
@@ -143,6 +144,7 @@ export function TaskChecklist({
               {tasks.map((tpl) => {
                 const isAnimating = animatingOut.has(tpl.id);
                 const reminderOpen = openReminderId === tpl.id;
+                const descriptionOpen = openDescriptionId === tpl.id;
                 return (
                   <li
                     key={tpl.id}
@@ -176,6 +178,20 @@ export function TaskChecklist({
                         </div>
                       </div>
                       <div className="flex shrink-0 items-center gap-2">
+                        {tpl.description && (
+                          <button
+                            onClick={() => setOpenDescriptionId(descriptionOpen ? null : tpl.id)}
+                            title={descriptionOpen ? t("hideDescription") : t("showDescription")}
+                            className={`rounded-md border p-1.5 transition ${
+                              descriptionOpen ? "border-teal/50 bg-teal/15 text-teal" : "border-border text-muted hover:text-teal"
+                            }`}
+                          >
+                            <ChevronDown
+                              size={13}
+                              className={`transition-transform ${descriptionOpen ? "rotate-180" : ""}`}
+                            />
+                          </button>
+                        )}
                         <button
                           onClick={() => setOpenReminderId(reminderOpen ? null : tpl.id)}
                           title={t("remind")}
@@ -194,6 +210,11 @@ export function TaskChecklist({
                         </button>
                       </div>
                     </div>
+                    {descriptionOpen && tpl.description && (
+                      <div className="mt-3 whitespace-pre-wrap rounded-md border border-border bg-bg/50 px-3 py-2 text-xs leading-relaxed text-muted animate-fade-up">
+                        {tpl.description}
+                      </div>
+                    )}
                     {reminderOpen && (
                       <div className="mt-3">
                         <TaskReminderControl templateId={tpl.id} timezone={timezone} />
