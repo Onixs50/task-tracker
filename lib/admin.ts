@@ -53,3 +53,27 @@ export async function listSiteAdmins(): Promise<SiteAdminEntry[]> {
     return [owner];
   }
 }
+
+/**
+ * Telegram chat ids for every admin who has linked their account. Used to
+ * forward "Feedback & suggestions" messages sent through the bot. Admins
+ * who haven't linked Telegram yet are simply skipped.
+ */
+export async function getAdminTelegramChatIds(): Promise<string[]> {
+  try {
+    const admins = await listSiteAdmins();
+    const service = createServiceClient();
+    const { data: users } = await service.auth.admin.listUsers({ perPage: 1000 });
+    const emailToId = new Map((users?.users ?? []).map((u) => [u.email?.toLowerCase(), u.id]));
+    const adminIds = admins.map((a) => emailToId.get(a.email.toLowerCase())).filter((id): id is string => !!id);
+    if (adminIds.length === 0) return [];
+    const { data: profiles } = await service
+      .from("profiles")
+      .select("id, telegram_chat_id")
+      .in("id", adminIds)
+      .not("telegram_chat_id", "is", null);
+    return (profiles ?? []).map((p) => p.telegram_chat_id!).filter(Boolean);
+  } catch {
+    return [];
+  }
+}

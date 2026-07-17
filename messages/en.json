@@ -104,6 +104,7 @@
     "discord": "Discord chat",
     "tweet": "Tweet",
     "content": "Content (photo/video)",
+    "telegram_push": "Sent via Telegram",
     "custom": "Custom"
   },
   "recurrence": {

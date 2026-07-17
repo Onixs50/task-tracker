@@ -7,6 +7,7 @@ export const TASK_CATEGORIES: { key: TaskCategory; emoji: string }[] = [
   { key: "discord", emoji: "💬" },
   { key: "tweet", emoji: "🐦" },
   { key: "content", emoji: "🎬" },
+  { key: "telegram_push", emoji: "📨" },
   { key: "custom", emoji: "✅" },
 ];
 

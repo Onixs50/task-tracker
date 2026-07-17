@@ -9,6 +9,7 @@ export type TaskCategory =
   | "discord"
   | "tweet"
   | "content"
+  | "telegram_push"
   | "custom";
 
 export interface Database {
@@ -207,6 +208,37 @@ export interface Database {
           title: string;
         };
         Update: Partial<Database["public"]["Tables"]["received_tasks"]["Row"]>;
+      };
+      telegram_sessions: {
+        Row: {
+          chat_id: string;
+          user_id: string | null;
+          lang: string;
+          state: string;
+          draft: Record<string, unknown>;
+          updated_at: string;
+        };
+        Insert: Partial<Database["public"]["Tables"]["telegram_sessions"]["Row"]> & { chat_id: string };
+        Update: Partial<Database["public"]["Tables"]["telegram_sessions"]["Row"]>;
+      };
+      feedback_messages: {
+        Row: {
+          id: string;
+          user_id: string | null;
+          chat_id: string;
+          username: string | null;
+          message: string;
+          admin_message_ids: Record<string, number>;
+          admin_reply: string | null;
+          status: "open" | "answered";
+          created_at: string;
+          replied_at: string | null;
+        };
+        Insert: Partial<Database["public"]["Tables"]["feedback_messages"]["Row"]> & {
+          chat_id: string;
+          message: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["feedback_messages"]["Row"]>;
       };
       site_admins: {
         Row: {
