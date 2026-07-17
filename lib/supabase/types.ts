@@ -174,6 +174,7 @@ export interface Database {
         Row: {
           id: string;
           created_by: string;
+          from_username: string | null;
           payload: SharedTaskPayload[];
           created_at: string;
         };
@@ -182,6 +183,30 @@ export interface Database {
           payload: SharedTaskPayload[];
         };
         Update: Partial<Database["public"]["Tables"]["shared_bundles"]["Row"]>;
+      };
+      received_tasks: {
+        Row: {
+          id: string;
+          recipient_id: string;
+          from_username: string | null;
+          bundle_id: string | null;
+          title: string;
+          description: string | null;
+          link_url: string | null;
+          extra_links: string[];
+          category: TaskCategory;
+          emoji: string;
+          recurrence_type: RecurrenceType;
+          recurrence_days: number[] | null;
+          custom_dates: string[] | null;
+          priority: Priority;
+          created_at: string;
+        };
+        Insert: Partial<Database["public"]["Tables"]["received_tasks"]["Row"]> & {
+          recipient_id: string;
+          title: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["received_tasks"]["Row"]>;
       };
       site_admins: {
         Row: {

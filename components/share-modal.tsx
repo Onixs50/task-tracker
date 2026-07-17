@@ -9,10 +9,12 @@ import type { SharedTaskPayload } from "@/lib/supabase/types";
 export function ShareModal({
   tasks,
   locale,
+  fromUsername,
   onClose,
 }: {
   tasks: SharedTaskPayload[];
   locale: string;
+  fromUsername?: string | null;
   onClose: () => void;
 }) {
   const t = useTranslations("share");
@@ -37,7 +39,7 @@ export function ShareModal({
       }
       const { data, error: insertError } = await supabase
         .from("shared_bundles")
-        .insert({ created_by: user.id, payload: tasks })
+        .insert({ created_by: user.id, from_username: fromUsername || null, payload: tasks })
         .select("id")
         .single();
       if (cancelled) return;
@@ -56,7 +58,7 @@ export function ShareModal({
     // `t` intentionally excluded — its reference changes every render and
     // would otherwise recreate the share link (and re-insert the bundle) repeatedly.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [tasks, locale]);
+  }, [tasks, locale, fromUsername]);
 
   async function copyLink() {
     if (!url) return;

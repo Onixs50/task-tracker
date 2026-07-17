@@ -13,7 +13,7 @@ export default async function SharedBundlePage({
 
   const { data: bundle } = await supabase
     .from("shared_bundles")
-    .select("id, payload")
+    .select("id, payload, from_username")
     .eq("id", params.id)
     .maybeSingle();
 
@@ -43,6 +43,7 @@ export default async function SharedBundlePage({
         isLoggedIn={!!user}
         locale={params.locale}
         bundleId={params.id}
+        fromUsername={bundle.from_username ?? null}
       />
     </div>
   );

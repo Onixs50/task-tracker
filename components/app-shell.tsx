@@ -2,7 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import { Link, usePathname } from "@/lib/i18n/navigation";
-import { LayoutGrid, ClipboardList, BarChart3, Settings, Gift, Megaphone } from "lucide-react";
+import { LayoutGrid, ClipboardList, BarChart3, Settings, Gift, Megaphone, Inbox } from "lucide-react";
 import { TickerBanner } from "./ticker-banner";
 import { ThemeToggle } from "./theme-toggle";
 import { LocaleSwitcher } from "./locale-switcher";
@@ -13,6 +13,7 @@ import type { ReactNode } from "react";
 const NAV = [
   { href: "/", key: "dashboard", icon: LayoutGrid },
   { href: "/admin", key: "admin", icon: ClipboardList },
+  { href: "/inbox", key: "inbox", icon: Inbox },
   { href: "/stats", key: "stats", icon: BarChart3 },
   { href: "/airdrops", key: "airdrops", icon: Gift },
   { href: "/settings", key: "settings", icon: Settings },
@@ -26,6 +27,7 @@ export function AppShell({
   quotes,
   bannerSpeed,
   isSuperAdmin,
+  inboxCount = 0,
 }: {
   children: ReactNode;
   timezone: string;
@@ -34,6 +36,7 @@ export function AppShell({
   quotes: string[];
   bannerSpeed: number;
   isSuperAdmin?: boolean;
+  inboxCount?: number;
 }) {
   const t = useTranslations("nav");
   const tApp = useTranslations("app");
@@ -63,12 +66,17 @@ export function AppShell({
                 <Link
                   key={item.href}
                   href={item.href as any}
-                  className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm transition ${
+                  className={`relative flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm transition ${
                     active ? "bg-surface text-gold" : "text-muted hover:text-ink"
                   }`}
                 >
                   <Icon size={15} />
                   {t(item.key)}
+                  {item.key === "inbox" && inboxCount > 0 && (
+                    <span className="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-danger px-1 text-[10px] font-medium text-white">
+                      {inboxCount > 9 ? "9+" : inboxCount}
+                    </span>
+                  )}
                 </Link>
               );
             })}
@@ -101,12 +109,17 @@ export function AppShell({
             <Link
               key={item.href}
               href={item.href as any}
-              className={`flex flex-col items-center gap-0.5 px-3 py-1 text-[10px] ${
+              className={`relative flex flex-col items-center gap-0.5 px-3 py-1 text-[10px] ${
                 active ? "text-gold" : "text-muted"
               }`}
             >
               <Icon size={18} />
               {t(item.key)}
+              {item.key === "inbox" && inboxCount > 0 && (
+                <span className="absolute right-1 top-0 flex h-3.5 min-w-3.5 items-center justify-center rounded-full bg-danger px-1 text-[9px] font-medium text-white">
+                  {inboxCount > 9 ? "9+" : inboxCount}
+                </span>
+              )}
             </Link>
           );
         })}

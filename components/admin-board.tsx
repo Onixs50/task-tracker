@@ -2,10 +2,11 @@
 
 import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
-import { Plus, Trash2, Pencil, X, Copy, Archive, ArchiveRestore, Search, ExternalLink, Share2, CheckSquare, Square } from "lucide-react";
+import { Plus, Trash2, Pencil, X, Copy, Archive, ArchiveRestore, Search, ExternalLink, Share2, CheckSquare, Square, Send } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { TASK_CATEGORIES, EMOJI_PICKS } from "@/lib/task-categories";
 import { ShareModal } from "@/components/share-modal";
+import { SendTasksModal } from "@/components/send-tasks-modal";
 import { TaskReminderControl } from "@/components/task-reminder-control";
 import type { Database, RecurrenceType, Priority, TaskCategory, SharedTaskPayload } from "@/lib/supabase/types";
 
@@ -49,11 +50,13 @@ export function AdminBoard({
   initialTemplates,
   locale,
   timezone,
+  username,
 }: {
   initialProjects: Project[];
   initialTemplates: TaskTemplate[];
   locale: string;
   timezone: string;
+  username?: string | null;
 }) {
   const t = useTranslations("admin");
   const tRec = useTranslations("recurrence");
@@ -80,6 +83,7 @@ export function AdminBoard({
   const [selectMode, setSelectMode] = useState(false);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [shareTasks, setShareTasks] = useState<SharedTaskPayload[] | null>(null);
+  const [showSendModal, setShowSendModal] = useState(false);
 
   function toSharedPayload(tpl: TaskTemplate): SharedTaskPayload {
     return {
@@ -113,6 +117,12 @@ export function AdminBoard({
     const chosen = templates.filter((tpl) => selectedIds.has(tpl.id));
     if (chosen.length === 0) return;
     setShareTasks(chosen.map(toSharedPayload));
+  }
+
+  function sendBundle(chosen: TaskTemplate[]) {
+    if (chosen.length === 0) return;
+    setShareTasks(chosen.map(toSharedPayload));
+    setShowSendModal(false);
   }
 
   function resetTaskForm() {
@@ -362,6 +372,12 @@ export function AdminBoard({
                 }`}
               >
                 {t("showArchived")}
+              </button>
+              <button
+                onClick={() => setShowSendModal(true)}
+                className="flex items-center gap-1 rounded-md border border-border px-2.5 py-1.5 text-xs text-muted transition hover:border-gold/40 hover:text-gold"
+              >
+                <Send size={13} /> {t("bulkSend")}
               </button>
               <button
                 onClick={() => {
@@ -680,8 +696,21 @@ export function AdminBoard({
         )}
       </div>
 
+      {showSendModal && (
+        <SendTasksModal
+          projects={projects}
+          templates={templates}
+          onPickCustom={() => {
+            setSelectMode(true);
+            setSelectedIds(new Set());
+          }}
+          onSend={sendBundle}
+          onClose={() => setShowSendModal(false)}
+        />
+      )}
+
       {shareTasks && (
-        <ShareModal tasks={shareTasks} locale={locale} onClose={() => setShareTasks(null)} />
+        <ShareModal tasks={shareTasks} locale={locale} fromUsername={username} onClose={() => setShareTasks(null)} />
       )}
     </div>
   );

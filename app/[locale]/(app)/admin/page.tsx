@@ -14,7 +14,7 @@ export default async function AdminPage() {
   const [{ data: projects }, { data: templates }, { data: profile }] = await Promise.all([
     supabase.from("projects").select("*").order("created_at"),
     supabase.from("task_templates").select("*").order("created_at"),
-    user ? supabase.from("profiles").select("timezone").eq("id", user.id).single() : Promise.resolve({ data: null }),
+    user ? supabase.from("profiles").select("timezone, username, display_name").eq("id", user.id).single() : Promise.resolve({ data: null }),
   ]);
 
   return (
@@ -25,6 +25,7 @@ export default async function AdminPage() {
         initialTemplates={templates ?? []}
         locale={locale}
         timezone={profile?.timezone ?? "UTC"}
+        username={profile?.username ?? profile?.display_name ?? null}
       />
     </div>
   );
