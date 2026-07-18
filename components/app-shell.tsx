@@ -2,7 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import { Link, usePathname } from "@/lib/i18n/navigation";
-import { LayoutGrid, ClipboardList, BarChart3, Settings, Gift, Megaphone, Inbox } from "lucide-react";
+import { LayoutGrid, ClipboardList, BarChart3, Settings, Gift, Megaphone, Archive } from "lucide-react";
 import { TickerBanner } from "./ticker-banner";
 import { ThemeToggle } from "./theme-toggle";
 import { LocaleSwitcher } from "./locale-switcher";
@@ -13,7 +13,7 @@ import type { ReactNode } from "react";
 const NAV = [
   { href: "/", key: "dashboard", icon: LayoutGrid },
   { href: "/admin", key: "admin", icon: ClipboardList },
-  { href: "/inbox", key: "inbox", icon: Inbox },
+  { href: "/inbox", key: "inbox", icon: Archive },
   { href: "/stats", key: "stats", icon: BarChart3 },
   { href: "/airdrops", key: "airdrops", icon: Gift },
   { href: "/settings", key: "settings", icon: Settings },

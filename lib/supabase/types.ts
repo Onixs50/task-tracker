@@ -240,6 +240,16 @@ export interface Database {
         };
         Update: Partial<Database["public"]["Tables"]["feedback_messages"]["Row"]>;
       };
+      telegram_bot_settings: {
+        Row: {
+          id: string;
+          intro_text_fa: string | null;
+          intro_text_en: string | null;
+          updated_at: string;
+        };
+        Insert: Partial<Database["public"]["Tables"]["telegram_bot_settings"]["Row"]>;
+        Update: Partial<Database["public"]["Tables"]["telegram_bot_settings"]["Row"]>;
+      };
       site_admins: {
         Row: {
           email: string;

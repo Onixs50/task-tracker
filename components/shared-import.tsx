@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-import { CheckCircle2, PackagePlus, Inbox } from "lucide-react";
+import { CheckCircle2, PackagePlus, Archive } from "lucide-react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { MascotBoy } from "@/components/mascot-boy";
@@ -224,7 +224,7 @@ export function SharedImport({
                   disabled={importing}
                   className="flex w-full items-center justify-center gap-1.5 rounded-sm bg-gold/15 py-2.5 text-sm font-medium text-gold hover:bg-gold/25 disabled:opacity-50"
                 >
-                  <Inbox size={15} />
+                  <Archive size={15} />
                   {importing ? t("importing") : t("saveToInbox")}
                 </button>
               </>

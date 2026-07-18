@@ -4,17 +4,27 @@ import {
   sendTelegramMessage,
   editTelegramMessage,
   answerCallbackQuery,
+  deleteTelegramMessage,
+  setTelegramCommands,
+  sendTelegramBroadcast,
   type InlineKeyboard,
 } from "@/lib/telegram";
 import {
   detectLang,
   t,
+  defaultIntro,
   mainMenuKeyboard,
   projectsKeyboard,
   projectMenuKeyboard,
   skipCancelKeyboard,
   confirmCancelKeyboard,
+  cancelOnlyKeyboard,
   backToMainKeyboard,
+  broadcastConfirmKeyboard,
+  resetAllConfirmKeyboard,
+  editIntroKeyboard,
+  USER_COMMANDS,
+  ADMIN_EXTRA_COMMANDS,
   type BotLang,
 } from "@/lib/telegram-bot-texts";
 
@@ -28,13 +38,13 @@ interface Session {
   draft: Record<string, any>;
 }
 
-const LINKED_TEXT_FA =
-  "متصل شدی! از این به بعد یادآوری تسک‌هات از همینجا برات میاد. برای قطع اتصال هر وقت خواستی /stop رو بفرست.";
-const LINKED_TEXT_EN =
-  "You're linked! Task reminders will now show up here. Send /stop anytime to disconnect.";
-
 function todayISO() {
   return new Date().toISOString().slice(0, 10);
+}
+
+function extractBundleId(link: string): string | null {
+  const match = link.trim().match(/shared\/([0-9a-fA-F-]{10,})/);
+  return match ? match[1] : null;
 }
 
 async function getOrCreateSession(
@@ -71,6 +81,17 @@ async function getLinkedProfile(service: ServiceClient, chatId: string) {
   return data;
 }
 
+async function getIntroText(service: ServiceClient, lang: BotLang, name: string): Promise<string> {
+  const { data } = await service
+    .from("telegram_bot_settings")
+    .select("intro_text_fa, intro_text_en")
+    .eq("id", "main")
+    .maybeSingle();
+  const custom = lang === "fa" ? data?.intro_text_fa : data?.intro_text_en;
+  if (custom) return custom.replace("{name}", name);
+  return defaultIntro(lang, name);
+}
+
 /** Sends (or edits, if a messageId is given) a menu screen. Falls back to a new message if editing fails. */
 async function render(
   chatId: string,
@@ -83,6 +104,13 @@ async function render(
     if (ok) return;
   }
   await sendTelegramMessage(chatId, text, keyboard);
+}
+
+async function ensureCommandsRegistered(service: ServiceClient, chatId: string, lang: BotLang, isAdmin: boolean) {
+  await setTelegramCommands(USER_COMMANDS[lang]); // default scope, shown to everyone
+  if (isAdmin) {
+    await setTelegramCommands([...USER_COMMANDS[lang], ...ADMIN_EXTRA_COMMANDS[lang]], chatId);
+  }
 }
 
 export async function handleTelegramUpdate(update: any) {
@@ -110,12 +138,21 @@ async function handleMessage(service: ServiceClient, message: any) {
   // An admin replying (Telegram "reply") to a forwarded feedback message —
   // this works regardless of the admin's own menu state.
   if (message.reply_to_message?.message_id) {
-    const relayed = await tryRelayAdminReply(service, chatId, message.reply_to_message.message_id, text);
+    const relayed = await tryRelayAdminReply(
+      service,
+      chatId,
+      message.reply_to_message.message_id,
+      message.message_id,
+      text
+    );
     if (relayed) return;
   }
 
+  const adminChatIds = await getAdminTelegramChatIds();
+  const isAdmin = adminChatIds.includes(chatId);
+
   if (text.startsWith("/start")) {
-    await handleStart(service, chatId, text, username, languageCode, firstName);
+    await handleStart(service, chatId, text, username, languageCode, firstName, isAdmin);
     return;
   }
 
@@ -126,7 +163,32 @@ async function handleMessage(service: ServiceClient, message: any) {
 
   if (text.startsWith("/menu") || text.startsWith("/cancel")) {
     await resetToIdle(service, chatId);
-    await sendMainMenu(service, chatId, firstName);
+    const session = await getOrCreateSession(service, chatId, languageCode);
+    await ensureCommandsRegistered(service, chatId, session.lang, isAdmin);
+    await sendMainMenu(service, chatId, firstName, isAdmin);
+    return;
+  }
+
+  if (text.startsWith("/feedback")) {
+    const profile = await getLinkedProfile(service, chatId);
+    const session = await getOrCreateSession(service, chatId, languageCode);
+    if (!profile) {
+      await sendTelegramMessage(chatId, t(session.lang).mustLink);
+      return;
+    }
+    await saveSession(service, chatId, { state: "awaiting_feedback", draft: {} });
+    await sendTelegramMessage(chatId, t(session.lang).feedbackAsk, backToMainKeyboard(session.lang));
+    return;
+  }
+
+  // ── admin-only slash commands ──
+  if (text.startsWith("/broadcast") || text.startsWith("/reset_me") || text.startsWith("/reset_user") || text.startsWith("/reset_all")) {
+    const session = await getOrCreateSession(service, chatId, languageCode);
+    if (!isAdmin) {
+      await sendTelegramMessage(chatId, t(session.lang).notAdmin);
+      return;
+    }
+    await handleAdminCommand(service, chatId, session.lang, text);
     return;
   }
 
@@ -183,9 +245,31 @@ async function handleMessage(service: ServiceClient, message: any) {
       await sendTelegramMessage(chatId, s.feedbackSent);
       return;
     }
+    case "awaiting_bundle_link": {
+      await handleBundleImport(service, chatId, lang, profile.id, text.trim());
+      return;
+    }
+    case "awaiting_broadcast_text": {
+      const draft = { text: text.trim() };
+      const { count } = await countLinkedUsers(service);
+      await saveSession(service, chatId, { state: "awaiting_broadcast_confirm", draft });
+      await sendTelegramMessage(chatId, s.broadcastPreview(draft.text, count), broadcastConfirmKeyboard(lang));
+      return;
+    }
+    case "awaiting_reset_username": {
+      await resetSingleUser(service, chatId, lang, text.trim().replace(/^@/, ""));
+      return;
+    }
+    case "awaiting_edit_intro": {
+      const column = lang === "fa" ? "intro_text_fa" : "intro_text_en";
+      await service.from("telegram_bot_settings").update({ [column]: text, updated_at: new Date().toISOString() }).eq("id", "main");
+      await resetToIdle(service, chatId);
+      await sendTelegramMessage(chatId, s.editIntroSaved);
+      return;
+    }
     default:
       await sendTelegramMessage(chatId, s.unknownInput);
-      await sendMainMenu(service, chatId, firstName, profile);
+      await sendMainMenu(service, chatId, firstName, isAdmin);
       return;
   }
 }
@@ -196,14 +280,17 @@ async function handleStart(
   text: string,
   username: string | undefined,
   languageCode: string | undefined,
-  firstName: string
+  firstName: string,
+  isAdmin: boolean
 ) {
   const code = text.replace("/start", "").trim().toUpperCase();
 
   if (!code) {
     const existing = await getLinkedProfile(service, chatId);
     if (existing) {
-      await sendMainMenu(service, chatId, firstName, existing);
+      const session = await getOrCreateSession(service, chatId, languageCode);
+      await ensureCommandsRegistered(service, chatId, session.lang, isAdmin);
+      await sendMainMenu(service, chatId, firstName, isAdmin);
       return;
     }
     const lang = detectLang(languageCode);
@@ -224,9 +311,10 @@ async function handleStart(
     .update({ telegram_chat_id: chatId, telegram_username: username ?? null, telegram_link_code: null })
     .eq("id", profile.id);
 
-  await getOrCreateSession(service, chatId, languageCode); // ensures a session row exists
-  await sendTelegramMessage(chatId, `${LINKED_TEXT_FA}\n\n${LINKED_TEXT_EN}`);
-  await sendMainMenu(service, chatId, firstName);
+  const session = await getOrCreateSession(service, chatId, languageCode); // ensures a session row exists
+  await ensureCommandsRegistered(service, chatId, session.lang, isAdmin);
+  await sendTelegramMessage(chatId, `${t("fa").linked}\n\n${t("en").linked}`);
+  await sendMainMenu(service, chatId, firstName, isAdmin);
 }
 
 async function handleStop(service: ServiceClient, chatId: string) {
@@ -241,6 +329,117 @@ async function handleStop(service: ServiceClient, chatId: string) {
   await sendTelegramMessage(chatId, t(lang).unlinked);
 }
 
+async function handleAdminCommand(service: ServiceClient, chatId: string, lang: BotLang, text: string) {
+  const s = t(lang);
+
+  if (text.startsWith("/broadcast")) {
+    const arg = text.replace("/broadcast", "").trim();
+    if (arg) {
+      const { count } = await countLinkedUsers(service);
+      await saveSession(service, chatId, { state: "awaiting_broadcast_confirm", draft: { text: arg } });
+      await sendTelegramMessage(chatId, s.broadcastPreview(arg, count), broadcastConfirmKeyboard(lang));
+      return;
+    }
+    await saveSession(service, chatId, { state: "awaiting_broadcast_text", draft: {} });
+    await sendTelegramMessage(chatId, s.askBroadcast, cancelOnlyKeyboard(lang));
+    return;
+  }
+
+  if (text.startsWith("/reset_me")) {
+    await resetToIdle(service, chatId);
+    await sendTelegramMessage(chatId, s.resetMeDone);
+    return;
+  }
+
+  if (text.startsWith("/reset_user")) {
+    const arg = text.replace("/reset_user", "").trim().replace(/^@/, "");
+    if (arg) {
+      await resetSingleUser(service, chatId, lang, arg);
+      return;
+    }
+    await saveSession(service, chatId, { state: "awaiting_reset_username", draft: {} });
+    await sendTelegramMessage(chatId, s.askResetUsername, cancelOnlyKeyboard(lang));
+    return;
+  }
+
+  if (text.startsWith("/reset_all")) {
+    await sendTelegramMessage(chatId, s.resetAllConfirmAsk, resetAllConfirmKeyboard(lang));
+    return;
+  }
+}
+
+async function resetSingleUser(service: ServiceClient, adminChatId: string, lang: BotLang, username: string) {
+  const s = t(lang);
+  const { data: profile } = await service
+    .from("profiles")
+    .select("telegram_chat_id")
+    .eq("telegram_username", username)
+    .maybeSingle();
+
+  await resetToIdle(service, adminChatId);
+
+  if (!profile?.telegram_chat_id) {
+    await sendTelegramMessage(adminChatId, s.resetUserNotFound);
+    return;
+  }
+  await resetToIdle(service, profile.telegram_chat_id);
+  await sendTelegramMessage(adminChatId, s.resetUserDone(username));
+}
+
+async function countLinkedUsers(service: ServiceClient): Promise<{ count: number; chatIds: string[] }> {
+  const { data } = await service.from("profiles").select("telegram_chat_id").not("telegram_chat_id", "is", null);
+  const chatIds = (data ?? []).map((p) => p.telegram_chat_id!).filter(Boolean);
+  return { count: chatIds.length, chatIds };
+}
+
+async function handleBundleImport(service: ServiceClient, chatId: string, lang: BotLang, userId: string, link: string) {
+  const s = t(lang);
+  const bundleId = extractBundleId(link);
+  if (!bundleId) {
+    await sendTelegramMessage(chatId, s.importInvalidLink, cancelOnlyKeyboard(lang));
+    return;
+  }
+
+  const { data: bundle } = await service
+    .from("shared_bundles")
+    .select("id, payload, from_username")
+    .eq("id", bundleId)
+    .maybeSingle();
+
+  if (!bundle) {
+    await resetToIdle(service, chatId);
+    await sendTelegramMessage(chatId, s.importNotFound);
+    return;
+  }
+
+  const payload = (bundle.payload as any[]) ?? [];
+  if (payload.length === 0) {
+    await resetToIdle(service, chatId);
+    await sendTelegramMessage(chatId, s.importEmpty);
+    return;
+  }
+
+  const rows = payload.map((tpl) => ({
+    recipient_id: userId,
+    from_username: bundle.from_username ?? null,
+    bundle_id: bundle.id,
+    title: tpl.title,
+    description: tpl.description ?? null,
+    link_url: tpl.link_url ?? null,
+    extra_links: tpl.extra_links ?? [],
+    category: tpl.category ?? "custom",
+    emoji: tpl.emoji ?? "✅",
+    recurrence_type: tpl.recurrence_type ?? "daily",
+    recurrence_days: tpl.recurrence_days ?? null,
+    custom_dates: tpl.custom_dates ?? null,
+    priority: tpl.priority ?? "medium",
+  }));
+
+  await service.from("received_tasks").insert(rows);
+  await resetToIdle(service, chatId);
+  await sendTelegramMessage(chatId, s.importSuccess(rows.length, bundle.from_username), backToMainKeyboard(lang));
+}
+
 async function handleCallback(service: ServiceClient, cq: any) {
   const chatId: string = cq.message?.chat?.id?.toString();
   const messageId: number | undefined = cq.message?.message_id;
@@ -250,6 +449,8 @@ async function handleCallback(service: ServiceClient, cq: any) {
 
   await answerCallbackQuery(cq.id);
 
+  const adminChatIds = await getAdminTelegramChatIds();
+  const isAdmin = adminChatIds.includes(chatId);
   const profile = await getLinkedProfile(service, chatId);
   const session = await getOrCreateSession(service, chatId, cq.from?.language_code);
   const lang = session.lang;
@@ -258,7 +459,8 @@ async function handleCallback(service: ServiceClient, cq: any) {
   if (data === "lang:fa" || data === "lang:en") {
     const newLang: BotLang = data === "lang:fa" ? "fa" : "en";
     await saveSession(service, chatId, { lang: newLang });
-    await render(chatId, messageId, t(newLang).mainMenuTitle(firstName), mainMenuKeyboard(newLang));
+    const intro = await getIntroText(service, newLang, firstName || "");
+    await render(chatId, messageId, intro, mainMenuKeyboard(newLang, isAdmin));
     return;
   }
 
@@ -269,7 +471,8 @@ async function handleCallback(service: ServiceClient, cq: any) {
 
   if (data === "menu:main") {
     await resetToIdle(service, chatId);
-    await render(chatId, messageId, s.mainMenuTitle(firstName), mainMenuKeyboard(lang));
+    const intro = await getIntroText(service, lang, firstName || "");
+    await render(chatId, messageId, intro, mainMenuKeyboard(lang, isAdmin));
     return;
   }
 
@@ -331,17 +534,85 @@ async function handleCallback(service: ServiceClient, cq: any) {
     await render(chatId, messageId, s.feedbackAsk, backToMainKeyboard(lang));
     return;
   }
+
+  if (data === "import:new") {
+    await saveSession(service, chatId, { state: "awaiting_bundle_link", draft: {} });
+    await render(chatId, messageId, s.askImportLink, cancelOnlyKeyboard(lang));
+    return;
+  }
+
+  // ── admin-only callbacks ──
+  if (data.startsWith("admin:")) {
+    if (!isAdmin) {
+      await render(chatId, messageId, s.notAdmin, backToMainKeyboard(lang));
+      return;
+    }
+    await handleAdminCallback(service, chatId, lang, data, messageId);
+    return;
+  }
 }
 
-async function sendMainMenu(
+async function handleAdminCallback(
   service: ServiceClient,
   chatId: string,
-  firstName: string,
-  profileArg?: { id: string } | null
+  lang: BotLang,
+  data: string,
+  messageId?: number
 ) {
+  const s = t(lang);
+
+  if (data === "admin:broadcast") {
+    await saveSession(service, chatId, { state: "awaiting_broadcast_text", draft: {} });
+    await render(chatId, messageId, s.askBroadcast, cancelOnlyKeyboard(lang));
+    return;
+  }
+
+  if (data === "admin:broadcast:confirm") {
+    const session = await getOrCreateSession(service, chatId);
+    const text = session.draft?.text;
+    if (!text) {
+      await resetToIdle(service, chatId);
+      await render(chatId, messageId, s.cancelled, backToMainKeyboard(lang));
+      return;
+    }
+    const { chatIds } = await countLinkedUsers(service);
+    const sent = await sendTelegramBroadcast(chatIds, text);
+    await service.from("telegram_broadcasts").insert({ message: text, recipient_count: sent });
+    await resetToIdle(service, chatId);
+    await render(chatId, messageId, s.broadcastSent(sent), backToMainKeyboard(lang));
+    return;
+  }
+
+  if (data === "admin:reset_all:confirm") {
+    const { data: rows } = await service
+      .from("telegram_sessions")
+      .update({ state: "idle", draft: {}, updated_at: new Date().toISOString() })
+      .neq("chat_id", "")
+      .select("chat_id");
+    await resetToIdle(service, chatId);
+    await render(chatId, messageId, s.resetAllDone((rows ?? []).length), backToMainKeyboard(lang));
+    return;
+  }
+
+  if (data === "admin:edit_intro") {
+    await saveSession(service, chatId, { state: "awaiting_edit_intro", draft: {} });
+    await render(chatId, messageId, s.askEditIntro, editIntroKeyboard(lang));
+    return;
+  }
+
+  if (data === "admin:edit_intro:reset") {
+    const column = lang === "fa" ? "intro_text_fa" : "intro_text_en";
+    await service.from("telegram_bot_settings").update({ [column]: null, updated_at: new Date().toISOString() }).eq("id", "main");
+    await resetToIdle(service, chatId);
+    await render(chatId, messageId, s.editIntroReset, backToMainKeyboard(lang));
+    return;
+  }
+}
+
+async function sendMainMenu(service: ServiceClient, chatId: string, firstName: string, isAdmin: boolean) {
   const session = await getOrCreateSession(service, chatId);
-  const s = t(session.lang);
-  await sendTelegramMessage(chatId, s.mainMenuTitle(firstName || ""), mainMenuKeyboard(session.lang));
+  const intro = await getIntroText(service, session.lang, firstName || "");
+  await sendTelegramMessage(chatId, intro, mainMenuKeyboard(session.lang, isAdmin));
 }
 
 async function sendProjectsList(
@@ -465,10 +736,17 @@ async function createFeedback(
   }
 }
 
+/**
+ * When an admin replies (Telegram "reply") to a forwarded feedback message:
+ * relays the reply to the original user, marks the thread answered, and —
+ * to keep the admin's chat tidy — deletes both the forwarded question (in
+ * every admin's chat that received a copy) and the admin's own reply message.
+ */
 async function tryRelayAdminReply(
   service: ServiceClient,
   adminChatId: string,
   repliedToMessageId: number,
+  replyMessageId: number,
   replyText: string
 ): Promise<boolean> {
   const { data: candidates } = await service
@@ -490,7 +768,19 @@ async function tryRelayAdminReply(
     .update({ admin_reply: replyText, status: "answered", replied_at: new Date().toISOString() })
     .eq("id", match.id);
 
+  // Clean up: remove the forwarded question from every admin chat that got a copy,
+  // and remove the replying admin's own reply text too.
+  const copies = (match.admin_message_ids ?? {}) as Record<string, number>;
+  await Promise.all(
+    Object.entries(copies).map(([copyChatId, copyMessageId]) => deleteTelegramMessage(copyChatId, copyMessageId))
+  );
+  await deleteTelegramMessage(adminChatId, replyMessageId);
+
   const adminSession = await getOrCreateSession(service, adminChatId);
-  await sendTelegramMessage(adminChatId, t(adminSession.lang).feedbackReplyRelayed);
+  const confirmMsg = await sendTelegramMessage(adminChatId, t(adminSession.lang).feedbackReplyRelayed);
+  if (confirmMsg) {
+    await new Promise((resolve) => setTimeout(resolve, 1500));
+    await deleteTelegramMessage(adminChatId, confirmMsg.message_id);
+  }
   return true;
 }

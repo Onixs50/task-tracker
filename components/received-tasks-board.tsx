@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
-import { Inbox, PackagePlus, Trash2, CheckSquare, Square, User } from "lucide-react";
+import { Archive, PackagePlus, Trash2, CheckSquare, Square, User } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import type { Database } from "@/lib/supabase/types";
 
@@ -141,7 +141,7 @@ export function ReceivedTasksBoard({
   if (items.length === 0) {
     return (
       <div className="flex flex-col items-center gap-2 rounded-lg border border-dashed border-border p-10 text-center text-sm text-muted">
-        <Inbox size={22} className="text-muted/70" />
+        <Archive size={22} className="text-muted/70" />
         {t("empty")}
       </div>
     );

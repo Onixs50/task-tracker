@@ -88,6 +88,48 @@ export async function answerCallbackQuery(callbackQueryId: string, text?: string
   }
 }
 
+/** Deletes a message. Silently ignores failures (e.g. message already gone, or older than 48h). */
+export async function deleteTelegramMessage(chatId: string, messageId: number): Promise<void> {
+  const token = process.env.TELEGRAM_BOT_TOKEN;
+  if (!token) return;
+  try {
+    await fetch(apiUrl("deleteMessage"), {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ chat_id: chatId, message_id: messageId }),
+    });
+  } catch (err) {
+    console.error("Telegram deleteMessage failed", err);
+  }
+}
+
+export interface BotCommand {
+  command: string;
+  description: string;
+}
+
+/**
+ * Registers the bot's slash-command menu (the list shown next to the message
+ * box). Pass a chatId to scope the list to one chat (used for the admin's
+ * extra commands) — omit it to set the default list everyone else sees.
+ */
+export async function setTelegramCommands(commands: BotCommand[], chatId?: string): Promise<void> {
+  const token = process.env.TELEGRAM_BOT_TOKEN;
+  if (!token) return;
+  try {
+    await fetch(apiUrl("setMyCommands"), {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        commands,
+        ...(chatId ? { scope: { type: "chat", chat_id: chatId } } : {}),
+      }),
+    });
+  } catch (err) {
+    console.error("Telegram setMyCommands failed", err);
+  }
+}
+
 /**
  * Sends the same message to many chats, a few at a time so we stay well
  * under Telegram's ~30 messages/second limit. Returns how many succeeded.
