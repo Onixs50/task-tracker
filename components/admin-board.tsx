@@ -442,8 +442,8 @@ export function AdminBoard({
                   value={form.description}
                   onChange={(e) => setForm({ ...form, description: e.target.value })}
                   placeholder={t("taskDescription")}
-                  rows={2}
-                  className="w-full rounded-sm border border-border bg-bg px-2.5 py-2 text-sm outline-none focus:border-gold/60"
+                  rows={4}
+                  className="w-full min-h-24 resize-y rounded-sm border border-border bg-bg px-2.5 py-2 text-sm outline-none focus:border-gold/60"
                 />
 
                 <div>
